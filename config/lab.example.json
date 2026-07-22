@@ -1,0 +1,8 @@
+{
+  "paths": {
+    "llama_bench": "/mnt/e/AI/llama.cpp-vulkan/llama-bench.exe",
+    "model": "/mnt/e/AI/models/Qwen3.5-0.8B-Q4_K_M.gguf",
+    "external_benchmarks": "/mnt/e/AI/benchmarks",
+    "repository_benchmarks": "benchmarks/hardware/raw"
+  }
+}

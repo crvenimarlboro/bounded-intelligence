@@ -1,0 +1,2 @@
+# Raw evidence is stored byte-for-byte; never normalize, recode, merge, or text-diff it.
+benchmarks/hardware/raw/** binary

@@ -1,0 +1,33 @@
+{
+  "schema_version": "1.0",
+  "experiment_id": "smoke.pipeline.v1",
+  "hypothesis": "The bootstrap laboratory can execute and account for a deterministic baseline/intervention comparison end to end.",
+  "baseline": "Predict the constant zero for a deterministic modular-checksum toy task.",
+  "intervention": "Compute the deterministic modular checksum directly.",
+  "controlled_variables": {
+    "task": "modular-checksum-smoke",
+    "observations_per_seed": 64,
+    "runtime": "CPython 3.12"
+  },
+  "independent_variables": ["algorithm"],
+  "dependent_metrics": ["exact_match_score", "elapsed_seconds", "persistent_bytes", "temporary_bytes", "peak_ram_bytes"],
+  "resource_budgets": {
+    "max_wall_seconds": 5,
+    "max_persistent_cognitive_bytes": 0,
+    "max_observations_per_repetition": 64,
+    "model_parameters": 0
+  },
+  "expected_result": "The intervention scores 1.0 and the baseline scores 0.0 for every seed while producing complete telemetry.",
+  "falsification_condition": "Any intervention error, missing artifact, invalid resource record, nondeterministic result, or wall-time budget violation falsifies the pipeline hypothesis.",
+  "repetition_count": 3,
+  "seeds": [7, 19, 41],
+  "artifact_locations": {
+    "generated_results": "results/smoke/results.json",
+    "generated_report": "results/smoke/report.md",
+    "generated_manifest": "results/smoke/manifest.completed.json"
+  },
+  "stopping_rule": "Run exactly once for each declared seed and stop immediately on an exception.",
+  "status": "planned",
+  "final_conclusion": null,
+  "evidence_classification": "implementation_assumption"
+}
