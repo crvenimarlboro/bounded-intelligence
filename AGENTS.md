@@ -41,6 +41,12 @@ uv run bilab doctor
 uv run bilab manifest validate experiments/smoke/manifest.json
 uv run bilab bench ingest benchmarks/hardware/raw --output benchmarks/hardware/normalized/current.json --summary-output benchmarks/hardware/normalized/current.txt
 uv run bilab smoke --output results/smoke
+uv run bilab core validate-worlds --config experiments/cognitive_core_v0/configs/final.json
+uv run bilab core smoke --config experiments/cognitive_core_v0/configs/pilot.json --output results/cognitive_core_v0/smoke
+uv run bilab core run --config experiments/cognitive_core_v0/configs/final.json --output results/cognitive_core_v0/final-v1.2
+uv run bilab core evaluate --checkpoint results/cognitive_core_v0/final-v1.2/checkpoints/cognitive_core-seed101.pt --output results/cognitive_core_v0/reproduction/evaluate-seed101.json
+uv run bilab core ablate --checkpoint results/cognitive_core_v0/final-v1.2/checkpoints/cognitive_core-seed101.pt --output results/cognitive_core_v0/reproduction/ablate-seed101.json
+uv run bilab core report --results results/cognitive_core_v0/final-v1.2/results.json --output results/cognitive_core_v0/reproduction/report.md
 ```
 
 Before completion: run sync, tests, lint, doctor, relevant real ingestion/experiments, and review the

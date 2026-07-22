@@ -47,3 +47,30 @@ Build the package with `uv build`. Machine-specific paths come from
 Artifact roles and retention rules are defined in
 [the resource constitution](docs/RESOURCE_CONSTITUTION.md). The first smoke experiment only proves
 the pipeline can run; it deliberately makes no intelligence claim.
+
+## Cognitive Core v0
+
+The first trainable architecture experiment is implemented under
+`experiments/cognitive_core_v0/`. It compares a 4 KiB gated latent workspace against a stateless
+neural predictor and an exact-byte episodic ring buffer in procedural Rule Worlds. The corrected
+three-seed result is **unsupported**: all systems remained near four-class chance and the full core
+did not beat no memory. See [the report](experiments/cognitive_core_v0/REPORT.md).
+
+```bash
+uv run bilab core validate-worlds --config experiments/cognitive_core_v0/configs/final.json
+uv run bilab core smoke --config experiments/cognitive_core_v0/configs/pilot.json \
+  --output results/cognitive_core_v0/smoke
+uv run bilab core run --config experiments/cognitive_core_v0/configs/final.json \
+  --output results/cognitive_core_v0/final-v1.2
+uv run bilab core evaluate \
+  --checkpoint results/cognitive_core_v0/final-v1.2/checkpoints/cognitive_core-seed101.pt \
+  --output results/cognitive_core_v0/reproduction/evaluate-seed101.json
+uv run bilab core ablate \
+  --checkpoint results/cognitive_core_v0/final-v1.2/checkpoints/cognitive_core-seed101.pt \
+  --output results/cognitive_core_v0/reproduction/ablate-seed101.json
+uv run bilab core report --results results/cognitive_core_v0/final-v1.2/results.json \
+  --output results/cognitive_core_v0/reproduction/report.md
+```
+
+Generated checkpoints and metrics are reproducible but ignored under `results/`; the preregistration,
+amendments, configuration, code, tests, and concise report are tracked.

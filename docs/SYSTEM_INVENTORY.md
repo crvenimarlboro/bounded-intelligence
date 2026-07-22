@@ -9,6 +9,8 @@ Observed 2026-07-22; exact runtime output comes from `uv run bilab doctor`.
 - 16 GiB system RAM; Radeon RX 570 with nominal 8 GiB VRAM. VRAM availability is not sampled by the
   bootstrap doctor and must not be inferred during experiments.
 - Python 3.12.3 via uv; Git 2.43, Clang 18.1.3, CMake 3.28.3, Ninja 1.11.1, jq 1.7.
+- Repo-local CPU training runtime: PyTorch 2.13.0+cpu and NumPy 2.4.4. No ROCm/GPU training path is
+  assumed or used by Cognitive Core v0.
 
 ## Read-only external inference assets
 

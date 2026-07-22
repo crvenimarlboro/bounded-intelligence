@@ -1,0 +1,47 @@
+{
+  "schema_version": "1.0",
+  "experiment_id": "cognitive-core-v0-rule-worlds-v1",
+  "hypothesis": "Under an equal 4096-byte persistent-state budget, a learned gated latent workspace updated by outcome and prediction error and read through shared recurrent computation will adapt to structured hidden rules better than no persistent memory and a deterministic episodic ring buffer, without the same advantage on random-control worlds.",
+  "baseline": "Independently trained parameter-matched no-memory and equal-byte episodic neural predictors using identical observations, targets, training worlds, optimizer steps, and held-out worlds.",
+  "intervention": "Cognitive Core v0 with a 1024-float32 workspace, learned gated candidate update, explicit prediction-error encoding, outcome feedback, and three applications of one shared thought block.",
+  "controlled_variables": {
+    "frozen_config": "experiments/cognitive_core_v0/configs/final.json",
+    "persistent_bytes": 4096,
+    "outcome_classes": 4,
+    "training_world_seed_range": "10000-10511",
+    "validation_world_seed_range": "20000-20023",
+    "test_world_seed_range": "30000+ disjoint category blocks",
+    "checkpoint_selection": "final epoch only",
+    "parameter_match_tolerance_fraction": 0.02,
+    "success_thresholds": "configs/final.json success_criteria",
+    "protocol_amendments": [
+      "experiments/cognitive_core_v0/amendments/0001-training-world-diversity.md",
+      "experiments/cognitive_core_v0/amendments/0002-query-schedule-fix.md"
+    ]
+  },
+  "independent_variables": ["persistent_state_representation", "workspace_update_ablation", "thought_cycles"],
+  "dependent_metrics": ["next_outcome_accuracy", "adaptation_curve", "structured_query_accuracy", "composed_counterfactual_accuracy", "surface_relabel_accuracy", "rule_change_recovery", "unrelated_rule_retention", "random_control_accuracy", "capability_per_persistent_byte", "training_seconds", "evaluation_seconds", "peak_ram_bytes", "checkpoint_bytes"],
+  "resource_budgets": {
+    "persistent_cognitive_bytes_per_world": 4096,
+    "max_peak_ram_bytes": 2147483648,
+    "max_total_checkpoint_bytes": 262144000,
+    "max_total_wall_seconds": 3600,
+    "training_observations_per_variant_seed": 32768,
+    "model_seed_count": 3
+  },
+  "expected_result": "The full core is expected to exceed no memory by at least 0.08 structured accuracy and episodic memory by at least 0.03, transfer under relabeling, gain at least 0.10 from observations 0 to 32, preserve at least 0.45 unrelated-rule accuracy, show no more than 0.04 random-control advantage, and lose at least 0.04 under one required ablation; at least two of three seeds must favor the core.",
+  "falsification_condition": "The hypothesis is unsupported if any required success criterion in configs/final.json fails, fixed bytes or checkpoint reproduction fail, comparisons exceed parameter/resource tolerances, leakage is detected, or results depend on undeclared seed/checkpoint selection.",
+  "repetition_count": 3,
+  "seeds": [101, 202, 303],
+  "artifact_locations": {
+    "checkpoints": "results/cognitive_core_v0/final-v1.2/checkpoints",
+    "raw_metrics": "results/cognitive_core_v0/final-v1.2/raw_metrics.jsonl",
+    "normalized_results": "results/cognitive_core_v0/final-v1.2/results.json",
+    "learning_curves": "results/cognitive_core_v0/final-v1.2/learning_curves.csv",
+    "report": "experiments/cognitive_core_v0/REPORT.md"
+  },
+  "stopping_rule": "Run every declared model and seed and all required full-core ablations, using final-epoch checkpoints only; stop for leakage, non-finite loss, resource-budget violation, or 3600 seconds total wall time. Protocol changes after pilot require a numbered amendment before final execution.",
+  "status": "completed",
+  "final_conclusion": "Unsupported under protocol 1.2: the full core remained near chance, did not materially beat either baseline, showed no positive adaptation curve, and was not weakened by the required ablations; fixed bytes, resource controls, and checkpoint reproduction passed.",
+  "evidence_classification": "disproven_by_current_evidence"
+}

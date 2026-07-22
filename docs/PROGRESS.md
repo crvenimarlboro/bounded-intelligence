@@ -23,3 +23,20 @@
 - **Established:** all ten repository source reports and current `/mnt/e/AI/benchmarks` files match the
   checked-in SHA-256 manifest. Generated outputs remain outside cognitive-state accounting and follow
   the storage policy.
+
+## 2026-07-22 — Cognitive Core v0
+
+- **Established:** Rule Worlds v0, three real CPU neural systems, bounded state, training/evaluation,
+  checkpoints, ablations, and substantive leakage/reproduction tests are implemented. Parameter
+  counts are 1,203,056 core, 1,203,065 episodic, and 1,203,197 no-memory.
+- **Established:** the core and episodic runtime states are exactly 4,096 bytes per world; tests hold
+  this constant through 10, 100, 1,000, and 10,000 observations. The no-memory system is stateless.
+- **Established:** corrected protocol 1.2 trained seeds 101, 202, and 303 for 32,768 observations per
+  model/seed and evaluated all required ablations. It completed in 227.32 seconds at 475,090,944-byte
+  peak RAM with 43,444,830 checkpoint bytes; every checkpoint reproduced exactly.
+- **Disproven by current evidence:** Cognitive Core v0 is unsupported in Rule Worlds v0. Structured
+  accuracy was 0.248 versus 0.251 no-memory and 0.247 equal-byte episodic; its step-0-to-32 adaptation
+  changed by -0.049, retention was 0.243, and no ablation produced the required degradation.
+- **Established:** a repeated-world pilot motivated a resource-neutral diversity amendment. Review
+  then found a query-shuffle defect; it was recorded, fixed, tested, and every final condition rerun.
+  See `experiments/cognitive_core_v0/REPORT.md` and ADR 0003.

@@ -1,0 +1,69 @@
+{
+  "protocol_version": "1.1-pilot-training-diversity",
+  "experiment_id": "cognitive-core-v0-rule-worlds-diversity-pilot",
+  "workspace_bytes": 4096,
+  "environment": {
+    "entity_count": 8,
+    "operation_count": 4,
+    "outcome_classes": 4,
+    "noise_values": 16,
+    "train_worlds": 256,
+    "train_episode_length": 64,
+    "validation_worlds": 16,
+    "evaluation_worlds_per_category": 16,
+    "evaluation_episode_length": 64,
+    "rule_change_episode_length": 80,
+    "rule_change_step": 32,
+    "train_generation_seed_start": 12000,
+    "validation_generation_seed_start": 21000,
+    "test_generation_seed_start": 31000
+  },
+  "model": {
+    "hidden_dim": 160,
+    "symbol_embedding_dim": 24,
+    "operation_embedding_dim": 12,
+    "kind_embedding_dim": 12,
+    "noise_embedding_dim": 8,
+    "marker_embedding_dim": 4,
+    "outcome_embedding_dim": 32,
+    "error_embedding_dim": 32,
+    "thought_cycles": 3,
+    "episodic_retrieval_records": 16
+  },
+  "training": {
+    "seeds": [17],
+    "epochs": 1,
+    "batch_size": 8,
+    "learning_rate": 0.0005,
+    "weight_decay": 0.0001,
+    "gradient_clip": 1.0,
+    "structured_fraction": 0.75,
+    "rule_change_fraction": 0.25,
+    "torch_threads": 6
+  },
+  "evaluation": {
+    "adaptation_checkpoints": [0, 1, 2, 4, 8, 16, 32, 63],
+    "recovery_windows": [[0, 1], [2, 3], [4, 7], [8, 15], [16, 47]],
+    "model_variants": ["no_memory", "episodic", "cognitive_core"],
+    "core_ablations": ["workspace_disabled", "workspace_frozen", "no_prediction_error", "recurrence_k1", "full"]
+  },
+  "success_criteria": {
+    "structured_advantage_over_no_memory": 0.08,
+    "structured_advantage_over_episodic": 0.03,
+    "surface_advantage_over_no_memory": 0.06,
+    "minimum_surface_accuracy": 0.45,
+    "minimum_adaptation_gain_0_to_32": 0.10,
+    "maximum_random_advantage_over_no_memory": 0.04,
+    "minimum_ablation_drop": 0.04,
+    "minimum_rule_change_retention": 0.45,
+    "minimum_positive_seeds": 1,
+    "maximum_parameter_difference_fraction": 0.02,
+    "maximum_core_eval_time_ratio": 2.5,
+    "checkpoint_reproduction_tolerance": 1e-7
+  },
+  "budgets": {
+    "max_peak_ram_bytes": 2147483648,
+    "max_checkpoint_bytes": 262144000,
+    "max_total_wall_seconds": 600
+  }
+}
