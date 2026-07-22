@@ -25,6 +25,10 @@ methodology. Inspect before editing; preserve user changes and raw evidence.
 outputs; `results/` reproducible ignored outputs; `telemetry/` optional ignored research logs;
 `schemas/` physical contracts; `docs/` governance and ADRs; `config/` example plus ignored override.
 
+For code discovery, prefer codebase-memory graph tools in this order when available: `search_graph`,
+`trace_path`, `get_code_snippet`, `query_graph`, then `get_architecture`. Fall back to `rg` for literals,
+non-code files, configuration, or insufficient graph results.
+
 ## Exact commands
 
 ```bash
