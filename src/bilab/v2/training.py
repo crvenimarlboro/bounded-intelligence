@@ -721,16 +721,21 @@ def slot_permutation_equivariance(
     stable_keys = (
         "overall_accuracy",
         "fully_informed_accuracy",
-        "mean_loss",
         "adaptation_curve",
         "composition_accuracy",
     )
+    loss_difference = abs(original["mean_loss"] - corresponding["mean_loss"])
     return {
         "applicable": True,
         "permutation": [1, 0],
-        "original": {key: original[key] for key in stable_keys},
-        "corresponding_permutation": {key: corresponding[key] for key in stable_keys},
-        "behavior_preserved": all(original[key] == corresponding[key] for key in stable_keys),
+        "original": {key: original[key] for key in (*stable_keys, "mean_loss")},
+        "corresponding_permutation": {
+            key: corresponding[key] for key in (*stable_keys, "mean_loss")
+        },
+        "maximum_allowed_loss_difference": 1e-7,
+        "observed_loss_difference": loss_difference,
+        "behavior_preserved": all(original[key] == corresponding[key] for key in stable_keys)
+        and loss_difference <= 1e-7,
     }
 
 

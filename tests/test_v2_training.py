@@ -60,6 +60,11 @@ def test_corresponding_slot_and_parameter_permutation_preserves_behavior() -> No
     result = slot_permutation_equivariance(run.model, worlds)
     assert result["applicable"] is True
     assert result["behavior_preserved"] is True
+    assert (
+        result["original"]["adaptation_curve"]
+        == result["corresponding_permutation"]["adaptation_curve"]
+    )
+    assert result["observed_loss_difference"] <= 1e-7
 
 
 def test_checkpoint_reload_reproduces_model_and_metadata(tmp_path: Path) -> None:
