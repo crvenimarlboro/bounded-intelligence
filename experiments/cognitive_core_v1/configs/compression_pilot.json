@@ -1,0 +1,20 @@
+{
+  "experiment_id": "cognitive-core-v1-compression-pilot",
+  "seeds": [401, 402, 403],
+  "state_dimensions": [1, 2, 4],
+  "quantization_bits": [1, 2, 4, 8, 16],
+  "training_world_seed_start": 30000,
+  "validation_world_seed_start": 35000,
+  "evaluation_world_seed_start": 38000,
+  "optimizer_steps": 300,
+  "batch_groups": 16,
+  "episode_steps": 10,
+  "validation_groups": 64,
+  "evaluation_groups": 128,
+  "learning_rate": 0.003,
+  "hidden_dim": 64,
+  "torch_threads": 6,
+  "minimum_fully_informed_accuracy": 0.85,
+  "minimum_donor_consistency": 0.85,
+  "minimum_rule_probe_accuracy": 0.90
+}

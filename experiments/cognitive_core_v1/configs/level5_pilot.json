@@ -1,0 +1,28 @@
+{
+  "experiment_id": "cognitive-core-v1-level5-pilot",
+  "family": "factorized",
+  "seeds": [401, 402, 403],
+  "training_world_seed_start": 30000,
+  "validation_world_seed_start": 35000,
+  "evaluation_world_seed_start": 38000,
+  "random_world_seed_start": 39000,
+  "optimizer_steps": 300,
+  "batch_groups": 16,
+  "episode_steps": 10,
+  "validation_groups": 64,
+  "evaluation_groups": 128,
+  "learning_rate": 0.003,
+  "hidden_dim": 64,
+  "state_dim": 4,
+  "state_bytes": 16,
+  "thought_cycles": 1,
+  "feedback_mode": "outcome_only",
+  "torch_threads": 6,
+  "gates": {
+    "minimum_fully_informed_accuracy": 0.85,
+    "minimum_reset_drop": 0.20,
+    "minimum_rule_probe_accuracy": 0.90,
+    "minimum_donor_consistency": 0.85,
+    "maximum_random_advantage": 0.05
+  }
+}

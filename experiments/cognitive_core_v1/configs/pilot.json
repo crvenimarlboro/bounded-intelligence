@@ -1,0 +1,51 @@
+{
+  "experiment_id": "cognitive-core-v1-pilot",
+  "pilot_model_seeds": [401, 402],
+  "training_world_seed_start": 30000,
+  "validation_world_seed_start": 35000,
+  "evaluation_world_seed_start": 38000,
+  "random_world_seed_start": 39000,
+  "optimizer_steps": 300,
+  "batch_pairs": 16,
+  "episode_steps": 9,
+  "validation_pairs": 64,
+  "evaluation_pairs": 128,
+  "learning_rate": 0.003,
+  "state_dim": 4,
+  "state_bytes": 16,
+  "thought_cycles": 1,
+  "torch_threads": 6,
+  "candidates": [
+    {
+      "family": "gru",
+      "hidden_dim": 64,
+      "feedback_mode": "outcome_only",
+      "predictive_weight": 0.0
+    },
+    {
+      "family": "predictive",
+      "hidden_dim": 64,
+      "feedback_mode": "outcome_only",
+      "predictive_weight": 0.5
+    },
+    {
+      "family": "factorized",
+      "hidden_dim": 64,
+      "feedback_mode": "outcome_only",
+      "predictive_weight": 0.0
+    }
+  ],
+  "supervision_conditions": [
+    {"name": "full", "start": 1.0, "end": 1.0},
+    {"name": "weak", "start": 0.1, "end": 0.1},
+    {"name": "annealed", "start": 1.0, "end": 0.0},
+    {"name": "outcome_only", "start": 0.0, "end": 0.0}
+  ],
+  "selection_gates": {
+    "minimum_post_evidence_accuracy": 0.85,
+    "minimum_adaptation_gain": 0.25,
+    "minimum_reset_drop": 0.20,
+    "minimum_rule_probe_accuracy": 0.90,
+    "minimum_donor_consistency": 0.85
+  }
+}

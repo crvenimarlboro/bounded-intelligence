@@ -11,6 +11,7 @@ from pathlib import Path
 from bilab.benchmarks import BenchmarkError, normalize_sources, render_summary
 from bilab.config import load_config, repository_root
 from bilab.doctor import collect_environment, render_environment
+from bilab.environments.adaptation_ladder import exhaustive_oracle_validation
 from bilab.manifest import ManifestError, load_manifest
 from bilab.smoke import run_smoke
 from bilab.training.commands import (
@@ -23,6 +24,23 @@ from bilab.training.commands import (
     run_smoke as run_core_smoke,
 )
 from bilab.training.experiment import load_experiment_config, run_experiment
+from bilab.training.v1_experiment import (
+    run_compression_pilot,
+    run_level5_pilot,
+    run_level7_pilot,
+    run_level8_pilot,
+    run_level9_pilot,
+    run_overfit_suite,
+    run_pilot,
+)
+from bilab.training.v1_final import (
+    diagnose_v1_checkpoint_file,
+    evaluate_v1_checkpoint_file,
+    refresh_result_output_bytes,
+    refresh_temporal_credit_results,
+    regenerate_v1_report,
+    run_confirmatory,
+)
 
 
 def _paths(inputs: Sequence[str]) -> list[Path]:
@@ -106,6 +124,146 @@ def build_parser() -> argparse.ArgumentParser:
     core_report = core_commands.add_parser("report")
     core_report.add_argument("--results", type=Path, required=True)
     core_report.add_argument("--output", type=Path, required=True)
+
+    v1 = subcommands.add_parser("v1", help="run the Cognitive Core v1 adaptation ladder")
+    v1_commands = v1.add_subparsers(dest="v1_command", required=True)
+    v1_commands.add_parser("validate", help="exhaustively validate the minimal oracle")
+    v1_overfit = v1_commands.add_parser("overfit", help="run the learnability ladder")
+    v1_overfit.add_argument(
+        "--output",
+        type=Path,
+        default=repository_root() / "results/cognitive_core_v1/development/overfit.json",
+    )
+    v1_pilot = v1_commands.add_parser("pilot", help="run reserved-pilot candidate selection")
+    v1_pilot.add_argument(
+        "--config",
+        type=Path,
+        default=repository_root() / "experiments/cognitive_core_v1/configs/pilot.json",
+    )
+    v1_pilot.add_argument(
+        "--output",
+        type=Path,
+        default=repository_root() / "results/cognitive_core_v1/pilot",
+    )
+    v1_level5 = v1_commands.add_parser(
+        "pilot-level5", help="test two independent rules on reserved pilot seeds"
+    )
+    v1_level5.add_argument(
+        "--config",
+        type=Path,
+        default=repository_root() / "experiments/cognitive_core_v1/configs/level5_pilot.json",
+    )
+    v1_level5.add_argument(
+        "--output",
+        type=Path,
+        default=repository_root() / "results/cognitive_core_v1/level5-pilot",
+    )
+    v1_compression = v1_commands.add_parser(
+        "pilot-compression", help="sweep Level-5 state width and quantization"
+    )
+    v1_compression.add_argument(
+        "--config",
+        type=Path,
+        default=repository_root() / "experiments/cognitive_core_v1/configs/compression_pilot.json",
+    )
+    v1_compression.add_argument(
+        "--output",
+        type=Path,
+        default=repository_root() / "results/cognitive_core_v1/compression-pilot",
+    )
+    v1_level7 = v1_commands.add_parser("pilot-level7", help="test composition of two learned rules")
+    v1_level7.add_argument(
+        "--config",
+        type=Path,
+        default=repository_root() / "experiments/cognitive_core_v1/configs/level7_pilot.json",
+    )
+    v1_level7.add_argument(
+        "--output",
+        type=Path,
+        default=repository_root() / "results/cognitive_core_v1/level7-pilot",
+    )
+    v1_level8 = v1_commands.add_parser(
+        "pilot-level8", help="test delayed retention across marked non-events"
+    )
+    v1_level8.add_argument(
+        "--config",
+        type=Path,
+        default=repository_root() / "experiments/cognitive_core_v1/configs/level8_pilot.json",
+    )
+    v1_level8.add_argument(
+        "--output",
+        type=Path,
+        default=repository_root() / "results/cognitive_core_v1/level8-pilot",
+    )
+    v1_level9 = v1_commands.add_parser(
+        "pilot-level9", help="test unmarked rule replacement and retention"
+    )
+    v1_level9.add_argument(
+        "--config",
+        type=Path,
+        default=repository_root() / "experiments/cognitive_core_v1/configs/level9_pilot.json",
+    )
+    v1_level9.add_argument(
+        "--output",
+        type=Path,
+        default=repository_root() / "results/cognitive_core_v1/level9-pilot",
+    )
+    v1_final = v1_commands.add_parser("final", help="run the frozen v1 confirmatory protocol")
+    v1_final.add_argument(
+        "--config",
+        type=Path,
+        default=repository_root() / "experiments/cognitive_core_v1/configs/final.json",
+    )
+    v1_final.add_argument(
+        "--manifest",
+        type=Path,
+        default=repository_root() / "experiments/cognitive_core_v1/manifest.json",
+    )
+    v1_final.add_argument(
+        "--output",
+        type=Path,
+        default=repository_root() / "results/cognitive_core_v1/final-v1.0",
+    )
+    v1_evaluate = v1_commands.add_parser(
+        "evaluate", help="independently evaluate a saved v1 checkpoint"
+    )
+    v1_evaluate.add_argument("--checkpoint", type=Path, required=True)
+    v1_evaluate.add_argument(
+        "--config",
+        type=Path,
+        default=repository_root() / "experiments/cognitive_core_v1/configs/final.json",
+    )
+    v1_evaluate.add_argument("--output", type=Path, required=True)
+    for command, help_text in (
+        ("probe", "reproduce state probes and temporal-gradient diagnostics"),
+        ("intervene", "reproduce causal state interventions"),
+        ("ablate", "reproduce state, compression, and recurrence ablations"),
+    ):
+        diagnostic = v1_commands.add_parser(command, help=help_text)
+        diagnostic.add_argument("--checkpoint", type=Path, required=True)
+        diagnostic.add_argument(
+            "--config",
+            type=Path,
+            default=repository_root() / "experiments/cognitive_core_v1/configs/final.json",
+        )
+        diagnostic.add_argument("--output", type=Path, required=True)
+    v1_report = v1_commands.add_parser(
+        "report", help="regenerate the v1 report from normalized results"
+    )
+    v1_report.add_argument("--results", type=Path, required=True)
+    v1_report.add_argument("--output", type=Path, required=True)
+    v1_report.add_argument("--summary-output", type=Path)
+    v1_report.add_argument(
+        "--refresh-resource-accounting",
+        action="store_true",
+        help="include results.json itself in the generated-byte measurement",
+    )
+    v1_report.add_argument(
+        "--refresh-temporal-credit",
+        action="store_true",
+        help="rerun amended temporal-credit probes from core checkpoints",
+    )
+    v1_report.add_argument("--checkpoint-root", type=Path)
     return parser
 
 
@@ -162,6 +320,102 @@ def main(argv: Sequence[str] | None = None) -> int:
             elif args.core_command == "report":
                 regenerate_report(args.results, args.output)
                 print(f"report written: {args.output}")
+        elif args.command == "v1":
+            if args.v1_command == "validate":
+                print(json.dumps(exhaustive_oracle_validation(), indent=2, sort_keys=True))
+            elif args.v1_command == "overfit":
+                result = run_overfit_suite()
+                _write(args.output, json.dumps(result, indent=2, sort_keys=True) + "\n")
+                print(
+                    "v1 overfit complete: "
+                    f"sequence={result['one_sequence']['accuracy']:.3f}, "
+                    f"world={result['one_world']['accuracy']:.3f}, "
+                    f"explicit={result['explicit_correct_state']['accuracy']:.3f}"
+                )
+            elif args.v1_command == "pilot":
+                result = run_pilot(repository_root(), args.config, args.output)
+                print(
+                    "v1 pilot complete: "
+                    f"selected={result['selected_candidate']}, "
+                    f"wall_seconds={result['pilot_wall_seconds']:.2f}"
+                )
+            elif args.v1_command == "pilot-level5":
+                result = run_level5_pilot(repository_root(), args.config, args.output)
+                print(
+                    "v1 level-5 pilot complete: "
+                    f"all_seeds_pass={result['all_seeds_pass']}, "
+                    f"wall_seconds={result['pilot_wall_seconds']:.2f}"
+                )
+            elif args.v1_command == "pilot-compression":
+                result = run_compression_pilot(repository_root(), args.config, args.output)
+                print(
+                    "v1 compression pilot complete: "
+                    f"selected_state_dimension={result['selected_state_dimension']}, "
+                    f"wall_seconds={result['pilot_wall_seconds']:.2f}"
+                )
+            elif args.v1_command == "pilot-level7":
+                result = run_level7_pilot(repository_root(), args.config, args.output)
+                print(
+                    "v1 level-7 pilot complete: "
+                    f"all_seeds_pass={result['all_seeds_pass']}, "
+                    f"wall_seconds={result['pilot_wall_seconds']:.2f}"
+                )
+            elif args.v1_command == "pilot-level8":
+                result = run_level8_pilot(repository_root(), args.config, args.output)
+                print(
+                    "v1 level-8 pilot complete: "
+                    f"all_seeds_pass={result['all_seeds_pass']}, "
+                    f"wall_seconds={result['pilot_wall_seconds']:.2f}"
+                )
+            elif args.v1_command == "pilot-level9":
+                result = run_level9_pilot(repository_root(), args.config, args.output)
+                print(
+                    "v1 level-9 pilot complete: "
+                    f"all_seeds_pass={result['all_seeds_pass']}, "
+                    f"wall_seconds={result['pilot_wall_seconds']:.2f}"
+                )
+            elif args.v1_command == "final":
+                result = run_confirmatory(
+                    repository_root(), args.config, args.manifest, args.output
+                )
+                print(
+                    "v1 final complete: "
+                    f"conclusion={result['assessment']['conclusion_class']}, "
+                    f"wall_seconds={result['resources']['total_wall_seconds']:.2f}"
+                )
+            elif args.v1_command == "evaluate":
+                result = evaluate_v1_checkpoint_file(args.checkpoint, args.config, args.output)
+                delay = result["evaluation"]["delay"]["fully_informed_accuracy"]
+                print(
+                    f"v1 checkpoint reproduced: delay_accuracy={delay:.6f}, "
+                    f"weights_unchanged={result['weights_unchanged']}"
+                )
+            elif args.v1_command in {"probe", "intervene", "ablate"}:
+                result = diagnose_v1_checkpoint_file(
+                    args.checkpoint,
+                    args.config,
+                    args.output,
+                    section=args.v1_command,
+                )
+                print(
+                    f"v1 {args.v1_command} complete: "
+                    f"weights_unchanged={result['weights_unchanged']}"
+                )
+            elif args.v1_command == "report":
+                if args.refresh_resource_accounting:
+                    refresh_result_output_bytes(args.results)
+                if args.refresh_temporal_credit:
+                    if args.checkpoint_root is None:
+                        raise ValueError("--refresh-temporal-credit requires --checkpoint-root")
+                    refresh_temporal_credit_results(args.results, args.checkpoint_root)
+                summary = regenerate_v1_report(
+                    args.results, args.output, summary_output=args.summary_output
+                )
+                print(
+                    "v1 report written: "
+                    f"conclusion={summary['assessment']['conclusion_class']}, "
+                    f"path={args.output}"
+                )
     except (BenchmarkError, ManifestError, OSError, RuntimeError, ValueError) as error:
         print(f"error: {error}", file=sys.stderr)
         return 2

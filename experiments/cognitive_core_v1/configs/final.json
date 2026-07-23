@@ -1,0 +1,124 @@
+{
+  "protocol_version": "1.0",
+  "experiment_id": "cognitive-core-v1-bounded-adaptation-final",
+  "seeds": [1701, 1702, 1703],
+  "persistent_state": {
+    "float32_values": 2,
+    "bytes": 8,
+    "analytic_rule_bits": 2,
+    "canonical_quantized_bits_tested": [2, 4, 8, 16, 32]
+  },
+  "training": {
+    "world_seed_start": 70000,
+    "validation_seed_start": 77000,
+    "optimizer_steps": 800,
+    "batch_groups": 8,
+    "episode_steps": 12,
+    "validation_groups": 64,
+    "validation_interval": 50,
+    "learning_rate": 0.003,
+    "weight_decay": 0.0,
+    "gradient_clip": 1.0,
+    "torch_threads": 6,
+    "checkpoint_selection": "final_step",
+    "observations_per_variant_seed": 307200,
+    "bptt_window_steps": 12,
+    "detach_inside_episode": false
+  },
+  "variants": {
+    "core": {
+      "family": "factorized",
+      "hidden_dim": 64,
+      "state_dim": 2,
+      "thought_cycles": 1,
+      "feedback_mode": "outcome_only",
+      "budget_bytes": 8
+    },
+    "no_memory": {
+      "family": "no_memory",
+      "hidden_dim": 59,
+      "thought_cycles": 1,
+      "feedback_mode": "outcome_only",
+      "budget_bytes": 0
+    },
+    "episodic": {
+      "family": "episodic",
+      "hidden_dim": 90,
+      "thought_cycles": 1,
+      "feedback_mode": "outcome_only",
+      "budget_bytes": 8
+    },
+    "error_detached": {
+      "family": "factorized",
+      "hidden_dim": 64,
+      "state_dim": 2,
+      "thought_cycles": 1,
+      "feedback_mode": "detached_error",
+      "budget_bytes": 8
+    },
+    "error_differentiable": {
+      "family": "factorized",
+      "hidden_dim": 64,
+      "state_dim": 2,
+      "thought_cycles": 1,
+      "feedback_mode": "differentiable_error",
+      "budget_bytes": 8
+    },
+    "error_surprise": {
+      "family": "factorized",
+      "hidden_dim": 64,
+      "state_dim": 2,
+      "thought_cycles": 1,
+      "feedback_mode": "surprise",
+      "budget_bytes": 8
+    },
+    "recurrence_k3": {
+      "family": "factorized",
+      "hidden_dim": 64,
+      "state_dim": 2,
+      "thought_cycles": 3,
+      "feedback_mode": "outcome_only",
+      "budget_bytes": 8
+    }
+  },
+  "evaluation": {
+    "groups": 128,
+    "rule_probe_seed_start": 77200,
+    "surface_probe_seed_start": 77400,
+    "reversal_seed_start": 78000,
+    "delay_seed_start": 78500,
+    "composition_seed_start": 79000,
+    "context_seed_start": 79500,
+    "random_seed_start": 80000,
+    "delay_steps": 8,
+    "delay_query_steps": 6,
+    "composition_steps": 11,
+    "context_steps": 10,
+    "adaptation_points": [0, 1, 2, 4, 8],
+    "online_gradient_descent": false,
+    "weights_frozen": true
+  },
+  "success_thresholds": {
+    "minimum_delay_accuracy": 0.85,
+    "minimum_composition_accuracy": 0.85,
+    "minimum_recovery_accuracy": 0.85,
+    "maximum_change_step_accuracy": 0.20,
+    "minimum_retention_accuracy": 0.90,
+    "minimum_surface_relabelled_accuracy": 0.85,
+    "maximum_random_advantage": 0.05,
+    "minimum_reset_drop": 0.20,
+    "minimum_donor_consistency": 0.85,
+    "minimum_rule_probe_accuracy": 0.90,
+    "minimum_no_memory_advantage": 0.25,
+    "minimum_episodic_advantage": 0.05,
+    "parameter_match_tolerance_fraction": 0.02,
+    "required_positive_seeds": 3,
+    "checkpoint_reproduction_tolerance": 0.0
+  },
+  "resource_budgets": {
+    "maximum_wall_seconds": 1800,
+    "maximum_peak_ram_bytes": 4294967296,
+    "maximum_checkpoint_bytes": 262144000,
+    "maximum_output_bytes": 524288000
+  }
+}

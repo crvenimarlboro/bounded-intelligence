@@ -74,3 +74,69 @@ uv run bilab core report --results results/cognitive_core_v0/final-v1.2/results.
 
 Generated checkpoints and metrics are reproducible but ignored under `results/`; the preregistration,
 amendments, configuration, code, tests, and concise report are tracked.
+
+## Cognitive Core v1
+
+V1 replaces the overloaded v0 task with an oracle-backed adaptation ladder. Its selected model has
+38,952 parameters and an eight-byte workspace (two float32 values). It learns from public
+input/outcome feedback with full within-episode BPTT, then adapts online with frozen weights. The
+three-seed confirmatory result is **SUPPORTED AT LEVEL H within the narrow Boolean ladder**: delayed,
+composed, relabelled, retention, and one-feedback-step reversal-recovery accuracy were 1.000;
+no-memory was 0.500 and the equal-byte episodic control averaged 0.591 on delayed queries. Random
+control remained at 0.493. See the [v1 report](experiments/cognitive_core_v1/REPORT.md) for causal
+interventions and limitations.
+
+The strongest caveat is architectural scaffolding: the writer receives a hand-computed public
+input/outcome relation and fixed context-to-slot routing. V1 establishes causal bounded state use,
+not autonomous discovery of the sufficient statistic.
+
+```bash
+uv run bilab manifest validate experiments/cognitive_core_v1/manifest.json
+uv run bilab v1 validate
+uv run bilab v1 overfit
+uv run bilab v1 pilot
+uv run bilab v1 pilot-level5
+uv run bilab v1 pilot-compression
+uv run bilab v1 pilot-level7
+uv run bilab v1 pilot-level8
+uv run bilab v1 pilot-level9
+nice -n 5 uv run bilab v1 final \
+  --config experiments/cognitive_core_v1/configs/final.json \
+  --manifest experiments/cognitive_core_v1/manifest.json \
+  --output results/cognitive_core_v1/final-v1.0
+
+uv run bilab v1 evaluate \
+  --checkpoint results/cognitive_core_v1/final-v1.0/checkpoints/core/seed-1701.pt \
+  --output results/cognitive_core_v1/reproduction/evaluate-seed1701.json
+uv run bilab v1 probe \
+  --checkpoint results/cognitive_core_v1/final-v1.0/checkpoints/core/seed-1701.pt \
+  --output results/cognitive_core_v1/reproduction/probe-seed1701.json
+uv run bilab v1 intervene \
+  --checkpoint results/cognitive_core_v1/final-v1.0/checkpoints/core/seed-1701.pt \
+  --output results/cognitive_core_v1/reproduction/intervene-seed1701.json
+uv run bilab v1 ablate \
+  --checkpoint results/cognitive_core_v1/final-v1.0/checkpoints/core/seed-1701.pt \
+  --output results/cognitive_core_v1/reproduction/ablate-seed1701.json
+uv run bilab v1 report \
+  --results results/cognitive_core_v1/final-v1.0/results.json \
+  --output experiments/cognitive_core_v1/REPORT.md \
+  --summary-output experiments/cognitive_core_v1/final_summary.json
+```
+
+The original final runner undercounted normalized output bytes, and its first temporal-credit probe
+did not apply intervening updates. The reporting-only corrections are reproducible and idempotent:
+
+```bash
+uv run bilab v1 report \
+  --results results/cognitive_core_v1/final-v1.0/results.json \
+  --checkpoint-root results/cognitive_core_v1/final-v1.0/checkpoints \
+  --refresh-resource-accounting --refresh-temporal-credit \
+  --output experiments/cognitive_core_v1/REPORT.md \
+  --summary-output experiments/cognitive_core_v1/final_summary.json
+```
+
+`v1 final` trains all seven declared variants across all three seeds and writes 21 compact
+checkpoints, raw/normalized metrics, and CSV learning/adaptation curves. The pilot commands train the
+candidate families and advance one curriculum factor at a time. All generated files under `results/`
+are ignored intentionally; the compact [final summary](experiments/cognitive_core_v1/final_summary.json),
+protocol, amendments, and report are tracked.

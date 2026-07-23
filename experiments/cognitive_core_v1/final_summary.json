@@ -1,0 +1,610 @@
+{
+  "aggregate": {
+    "core": {
+      "checkpoint_bytes": 503667,
+      "checkpoint_reproduction_max_error": 0.0,
+      "composition_accuracy": {
+        "maximum": 1.0,
+        "mean": 1.0,
+        "minimum": 1.0,
+        "standard_deviation": 0.0
+      },
+      "context_accuracy": {
+        "maximum": 1.0,
+        "mean": 0.9864908854166666,
+        "minimum": 0.966552734375,
+        "standard_deviation": 0.014391647503193442
+      },
+      "delay_accuracy": {
+        "maximum": 1.0,
+        "mean": 1.0,
+        "minimum": 1.0,
+        "standard_deviation": 0.0
+      },
+      "parameter_count": 38952,
+      "persistent_state_bytes": 8,
+      "random_control_accuracy": {
+        "maximum": 0.4967447916666667,
+        "mean": 0.4929470486111111,
+        "minimum": 0.4873046875,
+        "standard_deviation": 0.004068648710775329
+      },
+      "reversal_change_step_accuracy": {
+        "maximum": 0.03125,
+        "mean": 0.010416666666666666,
+        "minimum": 0.0,
+        "standard_deviation": 0.01473139127471974
+      },
+      "reversal_recovery_accuracy": {
+        "maximum": 1.0,
+        "mean": 1.0,
+        "minimum": 1.0,
+        "standard_deviation": 0.0
+      },
+      "seed_count": 3,
+      "surface_relabelled_delay_accuracy": {
+        "maximum": 1.0,
+        "mean": 1.0,
+        "minimum": 1.0,
+        "standard_deviation": 0.0
+      },
+      "training_observations": 307200,
+      "training_wall_seconds": {
+        "maximum": 17.38316375300201,
+        "mean": 17.263550671666355,
+        "minimum": 17.082814608998888,
+        "standard_deviation": 0.13001132312486996
+      },
+      "unrelated_rule_retention_accuracy": {
+        "maximum": 1.0,
+        "mean": 1.0,
+        "minimum": 1.0,
+        "standard_deviation": 0.0
+      }
+    },
+    "episodic": {
+      "checkpoint_bytes": 491613,
+      "checkpoint_reproduction_max_error": 0.0,
+      "composition_accuracy": {
+        "maximum": 0.66796875,
+        "mean": 0.654513888888889,
+        "minimum": 0.6438802083333334,
+        "standard_deviation": 0.010034399324389646
+      },
+      "context_accuracy": {
+        "maximum": 0.69677734375,
+        "mean": 0.6714680989583334,
+        "minimum": 0.6533203125,
+        "standard_deviation": 0.01844981039398366
+      },
+      "delay_accuracy": {
+        "maximum": 0.6344401041666666,
+        "mean": 0.5910373263888888,
+        "minimum": 0.5667317708333334,
+        "standard_deviation": 0.03076396726852316
+      },
+      "parameter_count": 39242,
+      "persistent_state_bytes": 8,
+      "random_control_accuracy": {
+        "maximum": 0.5061848958333334,
+        "mean": 0.5029296875,
+        "minimum": 0.4990234375,
+        "standard_deviation": 0.0029596748474361775
+      },
+      "reversal_change_step_accuracy": {
+        "maximum": 0.162109375,
+        "mean": 0.11588541666666667,
+        "minimum": 0.03515625,
+        "standard_deviation": 0.05728426798817431
+      },
+      "reversal_recovery_accuracy": {
+        "maximum": 0.9571005917159763,
+        "mean": 0.8392504930966469,
+        "minimum": 0.7418639053254438,
+        "standard_deviation": 0.08905344556039609
+      },
+      "seed_count": 3,
+      "surface_relabelled_delay_accuracy": {
+        "maximum": 0.638671875,
+        "mean": 0.5910373263888888,
+        "minimum": 0.5602213541666666,
+        "standard_deviation": 0.03416401067953416
+      },
+      "training_observations": 307200,
+      "training_wall_seconds": {
+        "maximum": 23.040183838998928,
+        "mean": 22.586070021665364,
+        "minimum": 22.322876842998085,
+        "standard_deviation": 0.3224596608667974
+      },
+      "unrelated_rule_retention_accuracy": {
+        "maximum": 1.0,
+        "mean": 0.9940476190476191,
+        "minimum": 0.9821428571428571,
+        "standard_deviation": 0.008417937871268445
+      }
+    },
+    "error_detached": {
+      "checkpoint_bytes": 503667,
+      "checkpoint_reproduction_max_error": 0.0,
+      "composition_accuracy": {
+        "maximum": 1.0,
+        "mean": 1.0,
+        "minimum": 1.0,
+        "standard_deviation": 0.0
+      },
+      "context_accuracy": {
+        "maximum": 0.99755859375,
+        "mean": 0.9949544270833334,
+        "minimum": 0.992919921875,
+        "standard_deviation": 0.0019360965581657421
+      },
+      "delay_accuracy": {
+        "maximum": 1.0,
+        "mean": 1.0,
+        "minimum": 1.0,
+        "standard_deviation": 0.0
+      },
+      "parameter_count": 38952,
+      "persistent_state_bytes": 8,
+      "random_control_accuracy": {
+        "maximum": 0.4925130208333333,
+        "mean": 0.4870876736111111,
+        "minimum": 0.482421875,
+        "standard_deviation": 0.0041545550605635
+      },
+      "reversal_change_step_accuracy": {
+        "maximum": 0.0,
+        "mean": 0.0,
+        "minimum": 0.0,
+        "standard_deviation": 0.0
+      },
+      "reversal_recovery_accuracy": {
+        "maximum": 1.0,
+        "mean": 1.0,
+        "minimum": 1.0,
+        "standard_deviation": 0.0
+      },
+      "seed_count": 3,
+      "surface_relabelled_delay_accuracy": {
+        "maximum": 1.0,
+        "mean": 1.0,
+        "minimum": 1.0,
+        "standard_deviation": 0.0
+      },
+      "training_observations": 307200,
+      "training_wall_seconds": {
+        "maximum": 17.598270374001004,
+        "mean": 17.472294978332986,
+        "minimum": 17.3125458229988,
+        "standard_deviation": 0.1190661717781166
+      },
+      "unrelated_rule_retention_accuracy": {
+        "maximum": 1.0,
+        "mean": 1.0,
+        "minimum": 1.0,
+        "standard_deviation": 0.0
+      }
+    },
+    "error_differentiable": {
+      "checkpoint_bytes": 503667,
+      "checkpoint_reproduction_max_error": 0.0,
+      "composition_accuracy": {
+        "maximum": 1.0,
+        "mean": 1.0,
+        "minimum": 1.0,
+        "standard_deviation": 0.0
+      },
+      "context_accuracy": {
+        "maximum": 1.0,
+        "mean": 0.98681640625,
+        "minimum": 0.966796875,
+        "standard_deviation": 0.01439118731653359
+      },
+      "delay_accuracy": {
+        "maximum": 1.0,
+        "mean": 1.0,
+        "minimum": 1.0,
+        "standard_deviation": 0.0
+      },
+      "parameter_count": 38952,
+      "persistent_state_bytes": 8,
+      "random_control_accuracy": {
+        "maximum": 0.4915364583333333,
+        "mean": 0.4867621527777778,
+        "minimum": 0.4827473958333333,
+        "standard_deviation": 0.0036280932068794435
+      },
+      "reversal_change_step_accuracy": {
+        "maximum": 0.078125,
+        "mean": 0.026041666666666668,
+        "minimum": 0.0,
+        "standard_deviation": 0.03682847818679935
+      },
+      "reversal_recovery_accuracy": {
+        "maximum": 1.0,
+        "mean": 1.0,
+        "minimum": 1.0,
+        "standard_deviation": 0.0
+      },
+      "seed_count": 3,
+      "surface_relabelled_delay_accuracy": {
+        "maximum": 1.0,
+        "mean": 1.0,
+        "minimum": 1.0,
+        "standard_deviation": 0.0
+      },
+      "training_observations": 307200,
+      "training_wall_seconds": {
+        "maximum": 18.820848773000762,
+        "mean": 18.22938279533264,
+        "minimum": 17.857357184999273,
+        "standard_deviation": 0.4228432066770667
+      },
+      "unrelated_rule_retention_accuracy": {
+        "maximum": 1.0,
+        "mean": 1.0,
+        "minimum": 1.0,
+        "standard_deviation": 0.0
+      }
+    },
+    "error_surprise": {
+      "checkpoint_bytes": 503667,
+      "checkpoint_reproduction_max_error": 0.0,
+      "composition_accuracy": {
+        "maximum": 1.0,
+        "mean": 1.0,
+        "minimum": 1.0,
+        "standard_deviation": 0.0
+      },
+      "context_accuracy": {
+        "maximum": 1.0,
+        "mean": 0.9789225260416666,
+        "minimum": 0.943603515625,
+        "standard_deviation": 0.025129755045701408
+      },
+      "delay_accuracy": {
+        "maximum": 1.0,
+        "mean": 0.9861111111111112,
+        "minimum": 0.9583333333333334,
+        "standard_deviation": 0.019641855032959635
+      },
+      "parameter_count": 38952,
+      "persistent_state_bytes": 8,
+      "random_control_accuracy": {
+        "maximum": 0.4967447916666667,
+        "mean": 0.4913194444444445,
+        "minimum": 0.4879557291666667,
+        "standard_deviation": 0.003872953189577856
+      },
+      "reversal_change_step_accuracy": {
+        "maximum": 0.103515625,
+        "mean": 0.043619791666666664,
+        "minimum": 0.0,
+        "standard_deviation": 0.04379918799883896
+      },
+      "reversal_recovery_accuracy": {
+        "maximum": 1.0,
+        "mean": 1.0,
+        "minimum": 1.0,
+        "standard_deviation": 0.0
+      },
+      "seed_count": 3,
+      "surface_relabelled_delay_accuracy": {
+        "maximum": 1.0,
+        "mean": 0.9869791666666666,
+        "minimum": 0.9609375,
+        "standard_deviation": 0.018414239093399676
+      },
+      "training_observations": 307200,
+      "training_wall_seconds": {
+        "maximum": 18.820331030001398,
+        "mean": 17.938395265668078,
+        "minimum": 17.373976677001338,
+        "standard_deviation": 0.6317162317808092
+      },
+      "unrelated_rule_retention_accuracy": {
+        "maximum": 1.0,
+        "mean": 1.0,
+        "minimum": 1.0,
+        "standard_deviation": 0.0
+      }
+    },
+    "no_memory": {
+      "checkpoint_bytes": 500235,
+      "checkpoint_reproduction_max_error": 0.0,
+      "composition_accuracy": {
+        "maximum": 0.5,
+        "mean": 0.5,
+        "minimum": 0.5,
+        "standard_deviation": 0.0
+      },
+      "context_accuracy": {
+        "maximum": 0.5,
+        "mean": 0.5,
+        "minimum": 0.5,
+        "standard_deviation": 0.0
+      },
+      "delay_accuracy": {
+        "maximum": 0.5,
+        "mean": 0.5,
+        "minimum": 0.5,
+        "standard_deviation": 0.0
+      },
+      "parameter_count": 39532,
+      "persistent_state_bytes": 0,
+      "random_control_accuracy": {
+        "maximum": 0.5048828125,
+        "mean": 0.4976128472222222,
+        "minimum": 0.4912109375,
+        "standard_deviation": 0.0056151688511005245
+      },
+      "reversal_change_step_accuracy": {
+        "maximum": 0.5,
+        "mean": 0.5,
+        "minimum": 0.5,
+        "standard_deviation": 0.0
+      },
+      "reversal_recovery_accuracy": {
+        "maximum": 0.5,
+        "mean": 0.5,
+        "minimum": 0.5,
+        "standard_deviation": 0.0
+      },
+      "seed_count": 3,
+      "surface_relabelled_delay_accuracy": {
+        "maximum": 0.5,
+        "mean": 0.5,
+        "minimum": 0.5,
+        "standard_deviation": 0.0
+      },
+      "training_observations": 307200,
+      "training_wall_seconds": {
+        "maximum": 14.50187434899999,
+        "mean": 13.60390549933436,
+        "minimum": 13.119108259001223,
+        "standard_deviation": 0.635632807513595
+      },
+      "unrelated_rule_retention_accuracy": {
+        "maximum": 0.5,
+        "mean": 0.5,
+        "minimum": 0.5,
+        "standard_deviation": 0.0
+      }
+    },
+    "recurrence_k3": {
+      "checkpoint_bytes": 503667,
+      "checkpoint_reproduction_max_error": 0.0,
+      "composition_accuracy": {
+        "maximum": 1.0,
+        "mean": 1.0,
+        "minimum": 1.0,
+        "standard_deviation": 0.0
+      },
+      "context_accuracy": {
+        "maximum": 1.0,
+        "mean": 0.9921061197916666,
+        "minimum": 0.982177734375,
+        "standard_deviation": 0.007416769134156541
+      },
+      "delay_accuracy": {
+        "maximum": 1.0,
+        "mean": 1.0,
+        "minimum": 1.0,
+        "standard_deviation": 0.0
+      },
+      "parameter_count": 38952,
+      "persistent_state_bytes": 8,
+      "random_control_accuracy": {
+        "maximum": 0.4895833333333333,
+        "mean": 0.4871961805555555,
+        "minimum": 0.4847005208333333,
+        "standard_deviation": 0.001994875901784965
+      },
+      "reversal_change_step_accuracy": {
+        "maximum": 0.01953125,
+        "mean": 0.006510416666666667,
+        "minimum": 0.0,
+        "standard_deviation": 0.009207119546699838
+      },
+      "reversal_recovery_accuracy": {
+        "maximum": 1.0,
+        "mean": 1.0,
+        "minimum": 1.0,
+        "standard_deviation": 0.0
+      },
+      "seed_count": 3,
+      "surface_relabelled_delay_accuracy": {
+        "maximum": 1.0,
+        "mean": 1.0,
+        "minimum": 1.0,
+        "standard_deviation": 0.0
+      },
+      "training_observations": 307200,
+      "training_wall_seconds": {
+        "maximum": 25.130087233999802,
+        "mean": 24.70084507233211,
+        "minimum": 24.408043749997887,
+        "standard_deviation": 0.31015993205218306
+      },
+      "unrelated_rule_retention_accuracy": {
+        "maximum": 1.0,
+        "mean": 1.0,
+        "minimum": 1.0,
+        "standard_deviation": 0.0
+      }
+    }
+  },
+  "assessment": {
+    "all_checkpoints_reproduce": true,
+    "conclusion_class": "SUPPORTED AT LEVEL H",
+    "delay_advantage_over_equal_byte_episodic": 0.40896267361111116,
+    "delay_advantage_over_no_memory": 0.5,
+    "equal_byte_episodic_gate_pass": true,
+    "full_primary_hypothesis_pass": true,
+    "mechanistic_level_h_pass": true,
+    "no_memory_gate_pass": true,
+    "parameter_difference_fractions": {
+      "episodic": 0.007445060587389607,
+      "no_memory": 0.014890121174779215
+    },
+    "parameter_match_pass": true
+  },
+  "capability_density": {
+    "adaptation_gain": 0.5,
+    "adaptation_gain_per_delayed_forward_update_call": 0.015625,
+    "adaptation_gain_per_training_observation": 1.6276041666666668e-06,
+    "delayed_episode_forward_update_calls": 32,
+    "gain_per_float32_state_bit": 0.0078125,
+    "gain_per_persistent_byte": 0.0625,
+    "held_out_delay_accuracy_per_parameter": 2.5672622715136577e-05,
+    "metric_definition": "mean delayed accuracy gain over pre-evidence accuracy",
+    "posthoc_four_bit_state_gain_per_bit": 0.0625,
+    "pre_evidence_accuracy": 0.5
+  },
+  "configuration_hash": "6312662761703d44d00701e86f5e1496230f601b29ef2af84c6883b926fd7aa7",
+  "core_mechanistic_diagnostics": {
+    "component_ablation_mean_accuracy": {
+      "0": 0.6805555555555556,
+      "1": 0.6388888888888888
+    },
+    "cycle_1_mean_accuracy": 1.0,
+    "cycle_3_mean_accuracy": 0.951171875,
+    "delay_task_adaptation_curve": {
+      "0": 0.5,
+      "1": 0.5,
+      "10": 1.0,
+      "11": 1.0,
+      "12": 1.0,
+      "13": 1.0,
+      "14": 1.0,
+      "15": 1.0
+    },
+    "delayed_donor_state_mean_consistency": 1.0,
+    "interventions_mean_fully_informed_accuracy": {
+      "frozen": 0.5,
+      "noise": 0.8893229166666666,
+      "random": 0.5033637152777778,
+      "reset": 0.5,
+      "shuffled": 0.4717881944444444
+    },
+    "maximum_delay_state_drift": 0.0,
+    "mean_gate": 0.0856708288192749,
+    "mean_gate_fraction_below_0_05": 0.8125,
+    "minimum_early_state_gradient_norm": 0.35605770349502563,
+    "minimum_writer_gradient_norm": 0.16474980337130488,
+    "quantization": {
+      "1": {
+        "canonical_state_bytes_ceiling": 1,
+        "mean_fully_informed_accuracy": 0.75
+      },
+      "16": {
+        "canonical_state_bytes_ceiling": 4,
+        "mean_fully_informed_accuracy": 1.0
+      },
+      "2": {
+        "canonical_state_bytes_ceiling": 1,
+        "mean_fully_informed_accuracy": 0.9232855902777778
+      },
+      "4": {
+        "canonical_state_bytes_ceiling": 1,
+        "mean_fully_informed_accuracy": 1.0
+      },
+      "8": {
+        "canonical_state_bytes_ceiling": 2,
+        "mean_fully_informed_accuracy": 1.0
+      }
+    },
+    "rule_probe_mean_accuracy": 0.9583333134651184,
+    "surface_label_probe_mean_accuracy": 0.515625,
+    "validation_learning_curve": {
+      "1": 0.5,
+      "100": 0.8329427083333333,
+      "150": 0.9096354166666667,
+      "200": 0.9140625,
+      "250": 0.9140625,
+      "300": 0.913671875,
+      "350": 0.9140625,
+      "400": 0.91328125,
+      "450": 0.9114583333333334,
+      "50": 0.5795572916666667,
+      "500": 0.9139322916666667,
+      "550": 0.9140625,
+      "600": 0.9140625,
+      "650": 0.9140625,
+      "700": 0.9141927083333333,
+      "750": 0.9140625,
+      "800": 0.9145833333333333
+    }
+  },
+  "core_per_seed": [
+    {
+      "change_step_accuracy": 0.0,
+      "checkpoint_reproduction_max_error": 0.0,
+      "composition_accuracy": 1.0,
+      "context_accuracy": 1.0,
+      "delay_accuracy": 1.0,
+      "donor_state_consistency": 1.0,
+      "peak_ram_bytes": 332992512,
+      "random_control_accuracy": 0.4947916666666667,
+      "recovery_accuracy": 1.0,
+      "recovery_speed_steps": 1,
+      "retention_accuracy": 1.0,
+      "rule_probe_accuracy": 0.9583333134651184,
+      "seed": 1701,
+      "surface_delay_accuracy": 1.0,
+      "surface_probe_accuracy": 0.515625,
+      "training_wall_seconds": 17.38316375300201
+    },
+    {
+      "change_step_accuracy": 0.0,
+      "checkpoint_reproduction_max_error": 0.0,
+      "composition_accuracy": 1.0,
+      "context_accuracy": 0.992919921875,
+      "delay_accuracy": 1.0,
+      "donor_state_consistency": 1.0,
+      "peak_ram_bytes": 339550208,
+      "random_control_accuracy": 0.4967447916666667,
+      "recovery_accuracy": 1.0,
+      "recovery_speed_steps": 1,
+      "retention_accuracy": 1.0,
+      "rule_probe_accuracy": 0.9583333134651184,
+      "seed": 1702,
+      "surface_delay_accuracy": 1.0,
+      "surface_probe_accuracy": 0.515625,
+      "training_wall_seconds": 17.32467365299817
+    },
+    {
+      "change_step_accuracy": 0.03125,
+      "checkpoint_reproduction_max_error": 0.0,
+      "composition_accuracy": 1.0,
+      "context_accuracy": 0.966552734375,
+      "delay_accuracy": 1.0,
+      "donor_state_consistency": 1.0,
+      "peak_ram_bytes": 341123072,
+      "random_control_accuracy": 0.4873046875,
+      "recovery_accuracy": 1.0,
+      "recovery_speed_steps": 1,
+      "retention_accuracy": 1.0,
+      "rule_probe_accuracy": 0.9583333134651184,
+      "seed": 1703,
+      "surface_delay_accuracy": 1.0,
+      "surface_probe_accuracy": 0.515625,
+      "training_wall_seconds": 17.082814608998888
+    }
+  ],
+  "experiment_id": "cognitive-core-v1-bounded-adaptation-final",
+  "final_seed_count": 3,
+  "protocol_version": "1.0",
+  "resources": {
+    "output_bytes": 6384137,
+    "output_bytes_before_normalized_result": 4571352,
+    "peak_ram_bytes": 346906624,
+    "peak_vram_bytes": null,
+    "total_checkpoint_bytes": 3510183,
+    "total_wall_seconds": 409.2638801760004
+  },
+  "run_count": 21,
+  "schema_version": "1.0",
+  "training_git_revision": "b482a8930941d6d1713c9dd175e37f99d2c5fc67"
+}

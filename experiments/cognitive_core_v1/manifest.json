@@ -1,0 +1,73 @@
+{
+  "schema_version": "1.0",
+  "experiment_id": "cognitive-core-v1-bounded-adaptation-final",
+  "hypothesis": "With frozen weights and exactly 8 persistent bytes, a learned factorized predictive state updated only from public input/outcome feedback will infer, compose, retain, and revise two hidden binary rules more effectively than no persistent state and an equal-byte deterministic episodic ring, without a comparable advantage on random outcomes.",
+  "baseline": "Independently trained current-observation no-memory and 8-byte packed episodic controls, matched within 2% trainable parameters and given identical reversal worlds, observations, optimizer steps, public fields, final seeds, and evaluation worlds.",
+  "intervention": "A 38,952-parameter factorized state core with two float32 rule slots, a learned gated public-feedback writer, a learned state reader, one shared gated thought cycle, full 12-step BPTT during weight training, and no gradient updates during held-out online adaptation.",
+  "controlled_variables": {
+    "frozen_config": "experiments/cognitive_core_v1/configs/final.json",
+    "persistent_bytes": 8,
+    "training_seed_range": "70000-76399",
+    "validation_seed_range": "77000-77063",
+    "probe_seed_ranges": ["77200-77327", "77400-77527"],
+    "evaluation_seed_ranges": ["78000-78127", "78500-78627", "79000-79127", "79500-79627", "80000-80511"],
+    "model_seeds": [1701, 1702, 1703],
+    "training_observations_per_variant_seed": 307200,
+    "checkpoint_selection": "final optimizer step",
+    "parameter_match_tolerance_fraction": 0.02,
+    "pre_registration_corrections": [
+      "experiments/cognitive_core_v1/amendments/0001-reversal-schedule-leak.md",
+      "experiments/cognitive_core_v1/amendments/0002-pilot-seed-overlap.md"
+    ]
+  },
+  "independent_variables": [
+    "runtime_state_mechanism",
+    "prediction_error_feedback_mode",
+    "shared_thought_cycles",
+    "state_intervention",
+    "state_quantization"
+  ],
+  "dependent_metrics": [
+    "adaptation_curve",
+    "delayed_rule_accuracy",
+    "composition_accuracy",
+    "surface_relabelled_accuracy",
+    "rule_change_recovery_accuracy",
+    "recovery_speed",
+    "unrelated_rule_retention",
+    "random_control_accuracy",
+    "rule_probe_accuracy",
+    "donor_state_consistency",
+    "persistent_bytes",
+    "parameter_count",
+    "training_observations",
+    "wall_seconds",
+    "peak_ram_bytes",
+    "checkpoint_bytes"
+  ],
+  "resource_budgets": {
+    "persistent_cognitive_bytes_per_world": 8,
+    "max_peak_ram_bytes": 4294967296,
+    "max_total_checkpoint_bytes": 262144000,
+    "max_total_output_bytes": 524288000,
+    "max_total_wall_seconds": 1800,
+    "training_observations_per_variant_seed": 307200,
+    "model_seed_count": 3
+  },
+  "expected_result": "Every core seed should exceed 0.85 on delayed and composed queries, recover above 0.85 within two feedback steps after an unpredictable reversal, retain the unchanged rule above 0.90, decode current rules above 0.90, lose at least 0.20 when state is reset, follow donor state above 0.85, transfer under relabelling above 0.85, remain within 0.05 of chance advantage on random outcomes, beat no memory by 0.25, and beat equal-byte episodic memory by 0.05. K=3 and explicit prediction error are not expected to improve materially over the selected K=1 outcome-only core.",
+  "falsification_condition": "The full primary hypothesis is unsupported if any core seed misses a mechanistic threshold, weights or bytes change online, final ranges overlap, checkpoint reproduction differs, parameter matching exceeds 2%, random-control advantage exceeds 0.05, or the core fails to beat equal-byte episodic memory by 0.05. If only the episodic gate fails while causal bounded adaptation passes, report partial support at the highest demonstrated capability level.",
+  "repetition_count": 3,
+  "seeds": [1701, 1702, 1703],
+  "artifact_locations": {
+    "checkpoints": "results/cognitive_core_v1/final-v1.0/checkpoints",
+    "raw_metrics": "results/cognitive_core_v1/final-v1.0/raw_metrics.jsonl",
+    "normalized_results": "results/cognitive_core_v1/final-v1.0/results.json",
+    "learning_curves": "results/cognitive_core_v1/final-v1.0/learning_curves.csv",
+    "adaptation_curves": "results/cognitive_core_v1/final-v1.0/adaptation_curves.csv",
+    "report": "experiments/cognitive_core_v1/REPORT.md"
+  },
+  "stopping_rule": "Run all seven declared variants for all three final seeds and every declared core intervention; use final-step checkpoints only. Stop only for non-finite loss, leakage, resource-budget breach, or a software defect requiring a numbered amendment and full rerun of affected conditions.",
+  "status": "planned",
+  "final_conclusion": null,
+  "evidence_classification": "project_hypothesis"
+}

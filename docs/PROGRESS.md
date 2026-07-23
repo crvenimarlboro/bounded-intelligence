@@ -40,3 +40,33 @@
 - **Established:** a repeated-world pilot motivated a resource-neutral diversity amendment. Review
   then found a query-shuffle defect; it was recorded, fixed, tested, and every final condition rerun.
   See `experiments/cognitive_core_v0/REPORT.md` and ADR 0003.
+
+## 2026-07-23 — Cognitive Core v1
+
+- **Established:** an exhaustive 496-case binary oracle is 0.500 before evidence and 1.000 after one
+  public outcome; paired identical current observations require opposite answers under different
+  histories. One-sequence, one-world, several-world, and explicit-state neural checks reached 1.000.
+- **Established:** generic GRU, predictive-state GRU, and factorized-state cores were trained. The
+  generic GRU was unstable on one pilot seed; predictive and factorized models passed, and the
+  factorized model won the preregistered lower-parameter/lower-compute tie-breaker.
+- **Established:** full, weak, annealed, and absent rule-state auxiliary loss all solved the minimal
+  task. Final training therefore used outcome loss only, full 12-step BPTT, and no online gradients.
+- **Established:** the selected final core has 38,952 parameters and exactly eight persistent bytes.
+  Across final seeds 1701/1702/1703 it scored 1.000 on delayed, compositional, relabelled-delay,
+  post-change recovery, and unrelated-rule retention evaluations. No-memory was 0.500; the exact
+  eight-byte episodic ring scored 0.591 ± 0.031 on delayed queries; random control was 0.493 ± 0.004.
+- **Established:** reset/frozen/random state returned accuracy to approximately 0.500; donor-state
+  swaps transferred behavior at 1.000; rule probes decoded 0.958; both state-component ablations hurt;
+  delayed gradients reached the writer; checkpoints reproduced with zero numerical error.
+- **Supported but uncertain:** four-bit post-hoc quantization per state value preserved 1.000 accuracy
+  with a one-byte canonical ceiling; two bits/value retained 0.923. Quantized training was not tested.
+- **Disproven by current evidence:** K=3 did not improve K=1, and detached/differentiable prediction
+  error or surprise inputs did not improve outcome-only feedback. These mechanisms are not retained
+  as v1 advantages.
+- **Supported at Level H within this environment, not generally:** v1 establishes causal bounded
+  adaptation in the Boolean ladder. Its hand-computed input/outcome relation and fixed slot routing
+  are substantial scaffolds; autonomous sufficient-statistic discovery remains unproven.
+- Two invalid pilot shortcuts were found and preserved before preregistration: deterministic reversal
+  timing and overlapping generation ranges. Both were corrected, regression-tested, and rerun. A
+  post-run amendment corrects normalized-output byte accounting; another strengthens the
+  temporal-credit probe to cross eight actual updates while preserving the original diagnostic.
