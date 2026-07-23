@@ -45,6 +45,14 @@ from bilab.training.v1_final import (
 from bilab.v2.final import evaluate_v2_checkpoint, run_v2_final
 from bilab.v2.runner import run_v2_overfit, run_v2_pilot
 from bilab.v2.scaffold_audit import run_v1_scaffold_audit
+from bilab.v3.runner import (
+    diagnose_v3_checkpoint_section,
+    evaluate_v3_checkpoint,
+    run_v2_failure_audit,
+    run_v3_overfit,
+    run_v3_pilot,
+    validate_v3_protocol,
+)
 
 
 def _paths(inputs: Sequence[str]) -> list[Path]:
@@ -340,6 +348,61 @@ def build_parser() -> argparse.ArgumentParser:
     v2_evaluate.add_argument("--output", type=Path, required=True)
     v2_evaluate.add_argument("--seed-base", type=int, default=420_000)
     v2_evaluate.add_argument("--groups", type=int, default=64)
+
+    v3 = subcommands.add_parser(
+        "v3", help="run raw-relation and durable-state Cognitive Core v3 experiments"
+    )
+    v3_commands = v3.add_subparsers(dest="v3_command", required=True)
+    v3_audit = v3_commands.add_parser("audit-v2", help="localize reproduced V2 raw-writer failures")
+    v3_audit.add_argument(
+        "--reproduction-root",
+        type=Path,
+        default=repository_root() / "results/cognitive_core_v3/v2-reproduction",
+    )
+    v3_audit.add_argument(
+        "--output",
+        type=Path,
+        default=repository_root() / "results/cognitive_core_v3/v2-reproduction/failure_audit.json",
+    )
+    v3_validate = v3_commands.add_parser(
+        "validate", help="validate the V3 raw contract and inherited oracle"
+    )
+    v3_validate.add_argument(
+        "--contract",
+        type=Path,
+        default=repository_root() / "experiments/cognitive_core_v3/input_contract.json",
+    )
+    v3_overfit = v3_commands.add_parser(
+        "overfit", help="run V3 raw-relation fixed-data learnability checks"
+    )
+    v3_overfit.add_argument(
+        "--output",
+        type=Path,
+        default=repository_root() / "results/cognitive_core_v3/development/overfit.json",
+    )
+    for command, stage, help_text in (
+        ("pilot-a", "v3a", "run reserved raw-relation discovery candidates"),
+        ("pilot-b", "v3b", "run reserved long-preservation candidates"),
+    ):
+        pilot = v3_commands.add_parser(command, help=help_text)
+        pilot.set_defaults(v3_stage=stage)
+        pilot.add_argument(
+            "--config",
+            type=Path,
+            default=repository_root() / "experiments/cognitive_core_v3/configs/pilot_isolated.json",
+        )
+        pilot.add_argument("--output", type=Path, required=True)
+    for command, help_text in (
+        ("evaluate", "independently evaluate a V3 checkpoint"),
+        ("probe", "regenerate relation, state, and gradient probes"),
+        ("intervene", "regenerate causal state, route, and relation interventions"),
+        ("stress", "run the 100,000-distractor preservation stress test"),
+    ):
+        diagnostic = v3_commands.add_parser(command, help=help_text)
+        diagnostic.add_argument("--checkpoint", type=Path, required=True)
+        diagnostic.add_argument("--output", type=Path, required=True)
+        diagnostic.add_argument("--seed-base", type=int, default=620_000)
+        diagnostic.add_argument("--groups", type=int, default=64)
     return parser
 
 
@@ -548,6 +611,58 @@ def main(argv: Sequence[str] | None = None) -> int:
                     "v2 checkpoint evaluation complete: "
                     f"delay={diagnostics['delay']['fully_informed_accuracy']:.3f}"
                 )
+        elif args.command == "v3":
+            if args.v3_command == "audit-v2":
+                result = run_v2_failure_audit(args.reproduction_root, args.output)
+                print(f"v3 V2-failure audit complete: candidates={len(result['candidates'])}")
+            elif args.v3_command == "validate":
+                result = validate_v3_protocol(args.contract)
+                print(
+                    "v3 protocol valid: "
+                    f"oracle_post_evidence="
+                    f"{result['oracle']['post_evidence_accuracy']:.3f}"
+                )
+            elif args.v3_command == "overfit":
+                result = run_v3_overfit(args.output)
+                print(
+                    "v3 learnability checks complete: "
+                    f"all_overfit_pass={result['all_overfit_pass']}"
+                )
+            elif args.v3_command in {"pilot-a", "pilot-b"}:
+                result = run_v3_pilot(
+                    repository_root(),
+                    args.config,
+                    args.output,
+                    stage=args.v3_stage,
+                )
+                passing = [
+                    name for name, summary in result["summary"].items() if summary["all_seeds_pass"]
+                ]
+                print(
+                    f"v3 {args.v3_stage} pilot complete: "
+                    f"passing_candidates={','.join(passing) or 'none'}, "
+                    f"wall_seconds={result['wall_seconds']:.2f}"
+                )
+            elif args.v3_command == "evaluate":
+                result = evaluate_v3_checkpoint(
+                    args.checkpoint,
+                    args.output,
+                    seed_base=args.seed_base,
+                    groups=args.groups,
+                )
+                print(
+                    "v3 checkpoint evaluation complete: "
+                    f"delay={result['diagnostics']['delay']['fully_informed_accuracy']:.3f}"
+                )
+            elif args.v3_command in {"probe", "intervene", "stress"}:
+                result = diagnose_v3_checkpoint_section(
+                    args.checkpoint,
+                    args.output,
+                    seed_base=args.seed_base,
+                    groups=args.groups,
+                    section=args.v3_command,
+                )
+                print(f"v3 {args.v3_command} complete: checkpoint={result['checkpoint']}")
     except (BenchmarkError, ManifestError, OSError, RuntimeError, ValueError) as error:
         print(f"error: {error}", file=sys.stderr)
         return 2

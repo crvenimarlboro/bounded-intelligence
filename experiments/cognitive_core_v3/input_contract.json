@@ -1,0 +1,64 @@
+{
+  "schema_version": "1.0",
+  "interface": "cognitive-core-v3-raw-public-feedback",
+  "fields": [
+    {
+      "name": "current_input",
+      "semantic_source": "public observation",
+      "dimensions": 1,
+      "available": "before current prediction",
+      "representation": "raw current-step scalar"
+    },
+    {
+      "name": "operation_one_hot",
+      "semantic_source": "public operation symbol",
+      "dimensions": 4,
+      "available": "before current prediction",
+      "representation": "generic categorical encoding inside model"
+    },
+    {
+      "name": "phase",
+      "semantic_source": "public episode phase marker",
+      "dimensions": 1,
+      "available": "before current prediction",
+      "representation": "raw current-step scalar"
+    },
+    {
+      "name": "observed_outcome_one_hot",
+      "semantic_source": "public outcome feedback",
+      "dimensions": 2,
+      "available": "only after current prediction",
+      "representation": "generic categorical encoding inside model"
+    },
+    {
+      "name": "previous_state",
+      "semantic_source": "bounded runtime cognitive state",
+      "dimensions": 2,
+      "available": "from previous public update",
+      "representation": "two float32 values"
+    }
+  ],
+  "allowed_learned_transformations": [
+    "embedding",
+    "linear_projection",
+    "mlp",
+    "learned_multiplicative_interaction",
+    "attention",
+    "straight_through_discrete_decision",
+    "learned_codebook"
+  ],
+  "prohibited": [
+    "input_xor_outcome",
+    "input_equals_outcome",
+    "signed_rule_relation",
+    "hidden_rule",
+    "correct_state_slot",
+    "semantic_write_or_no_write_target",
+    "fixed_context_to_state_mapping",
+    "future_observation",
+    "generation_seed",
+    "complete_history",
+    "probe_output",
+    "research_telemetry"
+  ]
+}

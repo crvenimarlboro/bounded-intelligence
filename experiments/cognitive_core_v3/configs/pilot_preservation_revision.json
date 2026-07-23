@@ -1,0 +1,48 @@
+{
+  "schema_version": "1.0",
+  "experiment_id": "cognitive-core-v3-preservation-revision-pilot",
+  "revision_reason": "The straight-through hard gate passed seed 3202 but collapsed to never-write on seed 3201; both straight-through attractor runs collapsed to the central code.",
+  "seeds": [3201, 3202],
+  "training": {
+    "world_seed_start": 600000,
+    "validation_seed_start": 608000,
+    "optimizer_steps": 800,
+    "batch_groups": 8,
+    "episode_steps": 12,
+    "validation_groups": 64,
+    "validation_interval": 50,
+    "learning_rate": 0.003,
+    "gradient_clip": 1.0,
+    "torch_threads": 6,
+    "observations_per_candidate_seed": 307200
+  },
+  "evaluation_seed_start": 620000,
+  "evaluation_groups": 64,
+  "long_sequence_lengths": [10, 100, 1000, 10000, 100000],
+  "candidates": {
+    "v3b_hard_skip_softtrain": {
+      "stage": "v3b",
+      "family": "relation_hard_skip_softtrain",
+      "hidden_dim": 64,
+      "write_cost": 0.0
+    },
+    "v3b_attractor_softtrain": {
+      "stage": "v3b",
+      "family": "relation_attractor_softtrain",
+      "hidden_dim": 64,
+      "write_cost": 0.0
+    }
+  },
+  "candidate_selection_rule": [
+    "strict interface and exact byte compliance",
+    "pass every stage gate on both reserved seeds",
+    "higher minimum one-feedback recovery",
+    "higher minimum long-horizon retention",
+    "larger causal intervention drop",
+    "higher donor consistency",
+    "fewer persistent bits",
+    "fewer parameters",
+    "fewer observations",
+    "lower runtime"
+  ]
+}
