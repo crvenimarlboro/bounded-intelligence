@@ -462,6 +462,27 @@
     "posthoc_four_bit_state_gain_per_bit": 0.0625,
     "pre_evidence_accuracy": 0.5
   },
+  "committed_source_reproduction": {
+    "all_checkpoint_model_digests_equal": true,
+    "assessment_equal": true,
+    "checkpoint_model_digest_count": 21,
+    "configuration_hash_equal": true,
+    "experiment_id_equal": true,
+    "left": {
+      "git_revision": "b482a8930941d6d1713c9dd175e37f99d2c5fc67",
+      "path": "results/cognitive_core_v1/final-v1.0/results.json",
+      "wall_seconds": 409.2638801760004
+    },
+    "right": {
+      "git_revision": "a588386d6708366c5a606b787c9d93e373e2d1dc",
+      "path": "results/cognitive_core_v1/committed-reproduction-v1.0/results.json",
+      "wall_seconds": 450.2605657660024
+    },
+    "run_identities_equal": true,
+    "seeds_equal": true,
+    "stable_row_maximum_numeric_error": 0.0,
+    "stable_rows_equal": true
+  },
   "configuration_hash": "6312662761703d44d00701e86f5e1496230f601b29ef2af84c6883b926fd7aa7",
   "core_mechanistic_diagnostics": {
     "component_ablation_mean_accuracy": {

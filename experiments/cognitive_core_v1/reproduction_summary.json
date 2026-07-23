@@ -1,0 +1,170 @@
+{
+  "all_checkpoint_model_digests_equal": true,
+  "assessment_equal": true,
+  "checkpoint_model_digests": [
+    {
+      "equal": true,
+      "left_digest": "aa3fa62adadf2247e7f7f2de481d25c7334b2edc23e94bd8958f7a93a5c910f3",
+      "right_digest": "aa3fa62adadf2247e7f7f2de481d25c7334b2edc23e94bd8958f7a93a5c910f3",
+      "seed": 1701,
+      "variant": "core"
+    },
+    {
+      "equal": true,
+      "left_digest": "5403073a6d26d49542d4df04663adaf5f857d8b95e03500d66128433ab5ade41",
+      "right_digest": "5403073a6d26d49542d4df04663adaf5f857d8b95e03500d66128433ab5ade41",
+      "seed": 1702,
+      "variant": "core"
+    },
+    {
+      "equal": true,
+      "left_digest": "ac9cce0c05dca4ecc16da6a78a538cb5db34642d7d0af63b2d3b6dd2e759d7b7",
+      "right_digest": "ac9cce0c05dca4ecc16da6a78a538cb5db34642d7d0af63b2d3b6dd2e759d7b7",
+      "seed": 1703,
+      "variant": "core"
+    },
+    {
+      "equal": true,
+      "left_digest": "333b189d77777d2be330baec640fb72f6fa49b7b16a0df9fa7963b4dca7014b0",
+      "right_digest": "333b189d77777d2be330baec640fb72f6fa49b7b16a0df9fa7963b4dca7014b0",
+      "seed": 1701,
+      "variant": "episodic"
+    },
+    {
+      "equal": true,
+      "left_digest": "0a89b5dd380801c61c73f3910627cde1ce115c10462cb16712b9139434f71be4",
+      "right_digest": "0a89b5dd380801c61c73f3910627cde1ce115c10462cb16712b9139434f71be4",
+      "seed": 1702,
+      "variant": "episodic"
+    },
+    {
+      "equal": true,
+      "left_digest": "f1522d82a36d8adc45168f0a81ed372f68a2f99982006e93ebb05d76d44cf113",
+      "right_digest": "f1522d82a36d8adc45168f0a81ed372f68a2f99982006e93ebb05d76d44cf113",
+      "seed": 1703,
+      "variant": "episodic"
+    },
+    {
+      "equal": true,
+      "left_digest": "2305a643fbdb4c3ec99d7900d9c6c20ece67e493835fafa70f0585783b469ed5",
+      "right_digest": "2305a643fbdb4c3ec99d7900d9c6c20ece67e493835fafa70f0585783b469ed5",
+      "seed": 1701,
+      "variant": "error_detached"
+    },
+    {
+      "equal": true,
+      "left_digest": "f592a04b63a80c244510ad6423fe0cab551a6b82cebefb1d0a41a0171b336e25",
+      "right_digest": "f592a04b63a80c244510ad6423fe0cab551a6b82cebefb1d0a41a0171b336e25",
+      "seed": 1702,
+      "variant": "error_detached"
+    },
+    {
+      "equal": true,
+      "left_digest": "8b52263d9a663fb536de859b54dcf8fe300be5c068c0f4f0b33c8cd979c4f859",
+      "right_digest": "8b52263d9a663fb536de859b54dcf8fe300be5c068c0f4f0b33c8cd979c4f859",
+      "seed": 1703,
+      "variant": "error_detached"
+    },
+    {
+      "equal": true,
+      "left_digest": "cfc7ff78405dd422b0de1a451a4344ed72694d9266e427b14d6e1e792fea3600",
+      "right_digest": "cfc7ff78405dd422b0de1a451a4344ed72694d9266e427b14d6e1e792fea3600",
+      "seed": 1701,
+      "variant": "error_differentiable"
+    },
+    {
+      "equal": true,
+      "left_digest": "bcaf0bf229f69018aec0013bfc6cf86846bf14774f2ce59e7be310d553f2645c",
+      "right_digest": "bcaf0bf229f69018aec0013bfc6cf86846bf14774f2ce59e7be310d553f2645c",
+      "seed": 1702,
+      "variant": "error_differentiable"
+    },
+    {
+      "equal": true,
+      "left_digest": "22aca08b01dd725e1572805b6cc4b33648d4cb72e05e559ab10c8620a49e76b3",
+      "right_digest": "22aca08b01dd725e1572805b6cc4b33648d4cb72e05e559ab10c8620a49e76b3",
+      "seed": 1703,
+      "variant": "error_differentiable"
+    },
+    {
+      "equal": true,
+      "left_digest": "8b2a2098720f2cbce49c204a1572bac00d3dc728c8417582fd0e84ebb8ece95d",
+      "right_digest": "8b2a2098720f2cbce49c204a1572bac00d3dc728c8417582fd0e84ebb8ece95d",
+      "seed": 1701,
+      "variant": "error_surprise"
+    },
+    {
+      "equal": true,
+      "left_digest": "90aae3811ce2ae72ef4eb9676e47f5a02d8695ab523adbc1acfc04f707ab8cff",
+      "right_digest": "90aae3811ce2ae72ef4eb9676e47f5a02d8695ab523adbc1acfc04f707ab8cff",
+      "seed": 1702,
+      "variant": "error_surprise"
+    },
+    {
+      "equal": true,
+      "left_digest": "442c13e09bda73b00e02f3c863467d11837e3eade10b1b4fef0f7ffd3abeb073",
+      "right_digest": "442c13e09bda73b00e02f3c863467d11837e3eade10b1b4fef0f7ffd3abeb073",
+      "seed": 1703,
+      "variant": "error_surprise"
+    },
+    {
+      "equal": true,
+      "left_digest": "5be81baf7f553119b6d8d9a1607d5a9127939547b81548c63a6823056f8c7c44",
+      "right_digest": "5be81baf7f553119b6d8d9a1607d5a9127939547b81548c63a6823056f8c7c44",
+      "seed": 1701,
+      "variant": "no_memory"
+    },
+    {
+      "equal": true,
+      "left_digest": "eb981b2c2b439f02f2189b5f145766a96767fe9cc6f76aaac8e1884a7180d8d9",
+      "right_digest": "eb981b2c2b439f02f2189b5f145766a96767fe9cc6f76aaac8e1884a7180d8d9",
+      "seed": 1702,
+      "variant": "no_memory"
+    },
+    {
+      "equal": true,
+      "left_digest": "a75ff1eb07f41b2223f8ed782c32cb8e0561e7fd46daddf19672922acba0cbdd",
+      "right_digest": "a75ff1eb07f41b2223f8ed782c32cb8e0561e7fd46daddf19672922acba0cbdd",
+      "seed": 1703,
+      "variant": "no_memory"
+    },
+    {
+      "equal": true,
+      "left_digest": "23eaccba48cb578cceb13c864e4773f8ca30ed0cd62f60a37bf7843e76807a34",
+      "right_digest": "23eaccba48cb578cceb13c864e4773f8ca30ed0cd62f60a37bf7843e76807a34",
+      "seed": 1701,
+      "variant": "recurrence_k3"
+    },
+    {
+      "equal": true,
+      "left_digest": "4f903cfd77b1474bdd7f2dbcd883a5118112495c9a0bfeedd1ad498e3c9dbb59",
+      "right_digest": "4f903cfd77b1474bdd7f2dbcd883a5118112495c9a0bfeedd1ad498e3c9dbb59",
+      "seed": 1702,
+      "variant": "recurrence_k3"
+    },
+    {
+      "equal": true,
+      "left_digest": "e2c9d282beff462b2f0bf980d69da2022438d2ca492f60ff992055658c148ba7",
+      "right_digest": "e2c9d282beff462b2f0bf980d69da2022438d2ca492f60ff992055658c148ba7",
+      "seed": 1703,
+      "variant": "recurrence_k3"
+    }
+  ],
+  "configuration_hash_equal": true,
+  "experiment_id_equal": true,
+  "left": {
+    "git_revision": "b482a8930941d6d1713c9dd175e37f99d2c5fc67",
+    "path": "results/cognitive_core_v1/final-v1.0/results.json",
+    "wall_seconds": 409.2638801760004
+  },
+  "right": {
+    "git_revision": "a588386d6708366c5a606b787c9d93e373e2d1dc",
+    "path": "results/cognitive_core_v1/committed-reproduction-v1.0/results.json",
+    "wall_seconds": 450.2605657660024
+  },
+  "run_identities_equal": true,
+  "schema_version": "1.0",
+  "seeds_equal": true,
+  "stable_row_maximum_numeric_error": 0.0,
+  "stable_rows_equal": true
+}

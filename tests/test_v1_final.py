@@ -4,6 +4,7 @@ from pathlib import Path
 from bilab.resources import directory_bytes
 from bilab.training.v1_final import (
     compact_confirmatory_summary,
+    compare_v1_result_files,
     evaluate_v1_checkpoint_file,
     regenerate_v1_report,
     run_confirmatory,
@@ -119,3 +120,31 @@ def test_tiny_confirmatory_run_writes_reproducible_artifacts(tmp_path: Path) -> 
     )
     assert regenerated["assessment"] == result["assessment"]
     assert "Conclusion:" in (tmp_path / "report.md").read_text(encoding="utf-8")
+    comparison = compare_v1_result_files(
+        results_directory / "results.json",
+        results_directory / "results.json",
+        tmp_path / "comparison.json",
+    )
+    assert comparison["stable_rows_equal"] is True
+    assert comparison["all_checkpoint_model_digests_equal"] is True
+    reproduced_report = regenerate_v1_report(
+        results_directory / "results.json",
+        tmp_path / "reproduced-report.md",
+        reproduction_comparison=tmp_path / "comparison.json",
+    )
+    assert reproduced_report["committed_source_reproduction"]["checkpoint_model_digest_count"] == 3
+    assert "Committed-source full reproduction" in (tmp_path / "reproduced-report.md").read_text(
+        encoding="utf-8"
+    )
+
+    changed = json.loads((results_directory / "results.json").read_text(encoding="utf-8"))
+    changed["per_seed"][0]["evaluation"]["delay"]["post_evidence_accuracy"] += 0.125
+    changed_path = results_directory / "changed-results.json"
+    changed_path.write_text(json.dumps(changed), encoding="utf-8")
+    mismatch = compare_v1_result_files(
+        results_directory / "results.json",
+        changed_path,
+        tmp_path / "mismatch.json",
+    )
+    assert mismatch["stable_rows_equal"] is False
+    assert mismatch["stable_row_maximum_numeric_error"] == 0.125

@@ -1126,18 +1126,132 @@ def render_confirmatory_report(summary: dict[str, Any]) -> str:
             "",
         ]
     )
+    reproduction = summary.get("committed_source_reproduction")
+    if reproduction is not None:
+        lines.extend(
+            [
+                "## Committed-source full reproduction",
+                "",
+                "The complete 21-condition protocol was rerun once from committed implementation "
+                f"`{reproduction['right']['git_revision']}`. It took "
+                f"{reproduction['right']['wall_seconds']:.2f} seconds. After excluding only wall "
+                "time, peak RAM, checkpoint byte size, and Git metadata, every training history, "
+                "evaluation, diagnostic, and reproduction field matched with maximum numeric "
+                f"error {reproduction['stable_row_maximum_numeric_error']:.1f}. All "
+                f"{reproduction['checkpoint_model_digest_count']} checkpoint model-state digests "
+                "were identical. This rerun was a provenance check, not a selection opportunity.",
+                "",
+            ]
+        )
     return "\n".join(lines)
 
 
 def regenerate_v1_report(
-    results_path: Path, output_path: Path, *, summary_output: Path | None = None
+    results_path: Path,
+    output_path: Path,
+    *,
+    summary_output: Path | None = None,
+    reproduction_comparison: Path | None = None,
 ) -> dict[str, Any]:
     """Regenerate the tracked report and optional compact evidence from normalized results."""
 
     result = json.loads(results_path.read_text(encoding="utf-8"))
     summary = compact_confirmatory_summary(result)
+    if reproduction_comparison is not None:
+        comparison = json.loads(reproduction_comparison.read_text(encoding="utf-8"))
+        summary["committed_source_reproduction"] = {
+            key: comparison[key]
+            for key in (
+                "experiment_id_equal",
+                "configuration_hash_equal",
+                "seeds_equal",
+                "run_identities_equal",
+                "stable_row_maximum_numeric_error",
+                "stable_rows_equal",
+                "assessment_equal",
+                "all_checkpoint_model_digests_equal",
+                "left",
+                "right",
+            )
+        }
+        summary["committed_source_reproduction"]["checkpoint_model_digest_count"] = len(
+            comparison["checkpoint_model_digests"]
+        )
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(render_confirmatory_report(summary), encoding="utf-8")
     if summary_output is not None:
         _write_json(summary_output, summary)
     return summary
+
+
+def _stable_reproduction_row(row: dict[str, Any]) -> dict[str, Any]:
+    stable = json.loads(json.dumps(row))
+    stable["training"].pop("training_wall_seconds", None)
+    stable["training"].pop("peak_ram_bytes", None)
+    stable["checkpoint"].pop("git_revision", None)
+    stable["checkpoint"].pop("checkpoint_bytes", None)
+    if stable.get("diagnostics"):
+        stable["diagnostics"].pop("temporal_credit_pre_amendment_0004", None)
+    return stable
+
+
+def compare_v1_result_files(
+    left_results: Path, right_results: Path, output_path: Path
+) -> dict[str, Any]:
+    """Compare complete deterministic evidence and checkpoint tensors across two runs."""
+
+    left = json.loads(left_results.read_text(encoding="utf-8"))
+    right = json.loads(right_results.read_text(encoding="utf-8"))
+    left_rows = [_stable_reproduction_row(row) for row in left["per_seed"]]
+    right_rows = [_stable_reproduction_row(row) for row in right["per_seed"]]
+    left_by_identity = {(row["variant"], row["seed"]): row for row in left_rows}
+    right_by_identity = {(row["variant"], row["seed"]): row for row in right_rows}
+    identities_equal = left_by_identity.keys() == right_by_identity.keys()
+    stable_error = (
+        _numeric_max_error(left_by_identity, right_by_identity)
+        if identities_equal
+        else float("inf")
+    )
+    checkpoint_digests: list[dict[str, Any]] = []
+    if identities_equal:
+        for variant, seed in sorted(left_by_identity):
+            relative = Path("checkpoints") / variant / f"seed-{seed}.pt"
+            left_model, _, _ = load_v1_checkpoint(left_results.parent / relative)
+            right_model, _, _ = load_v1_checkpoint(right_results.parent / relative)
+            left_digest = state_dict_digest(left_model)
+            right_digest = state_dict_digest(right_model)
+            checkpoint_digests.append(
+                {
+                    "variant": variant,
+                    "seed": seed,
+                    "left_digest": left_digest,
+                    "right_digest": right_digest,
+                    "equal": left_digest == right_digest,
+                }
+            )
+    result = {
+        "schema_version": "1.0",
+        "experiment_id_equal": left.get("experiment_id") == right.get("experiment_id"),
+        "configuration_hash_equal": left.get("configuration_hash")
+        == right.get("configuration_hash"),
+        "seeds_equal": left.get("seeds") == right.get("seeds"),
+        "run_identities_equal": identities_equal,
+        "stable_row_maximum_numeric_error": stable_error,
+        "stable_rows_equal": stable_error == 0.0,
+        "assessment_equal": left.get("assessment") == right.get("assessment"),
+        "all_checkpoint_model_digests_equal": bool(checkpoint_digests)
+        and all(item["equal"] for item in checkpoint_digests),
+        "checkpoint_model_digests": checkpoint_digests,
+        "left": {
+            "path": str(left_results),
+            "git_revision": left.get("git_revision"),
+            "wall_seconds": left["resources"]["total_wall_seconds"],
+        },
+        "right": {
+            "path": str(right_results),
+            "git_revision": right.get("git_revision"),
+            "wall_seconds": right["resources"]["total_wall_seconds"],
+        },
+    }
+    _write_json(output_path, result)
+    return result

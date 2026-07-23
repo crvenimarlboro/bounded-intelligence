@@ -34,6 +34,7 @@ from bilab.training.v1_experiment import (
     run_pilot,
 )
 from bilab.training.v1_final import (
+    compare_v1_result_files,
     diagnose_v1_checkpoint_file,
     evaluate_v1_checkpoint_file,
     refresh_result_output_bytes,
@@ -253,6 +254,7 @@ def build_parser() -> argparse.ArgumentParser:
     v1_report.add_argument("--results", type=Path, required=True)
     v1_report.add_argument("--output", type=Path, required=True)
     v1_report.add_argument("--summary-output", type=Path)
+    v1_report.add_argument("--reproduction-comparison", type=Path)
     v1_report.add_argument(
         "--refresh-resource-accounting",
         action="store_true",
@@ -264,6 +266,12 @@ def build_parser() -> argparse.ArgumentParser:
         help="rerun amended temporal-credit probes from core checkpoints",
     )
     v1_report.add_argument("--checkpoint-root", type=Path)
+    v1_compare = v1_commands.add_parser(
+        "compare", help="compare deterministic evidence and model tensors across two runs"
+    )
+    v1_compare.add_argument("--left", type=Path, required=True)
+    v1_compare.add_argument("--right", type=Path, required=True)
+    v1_compare.add_argument("--output", type=Path, required=True)
     return parser
 
 
@@ -409,12 +417,23 @@ def main(argv: Sequence[str] | None = None) -> int:
                         raise ValueError("--refresh-temporal-credit requires --checkpoint-root")
                     refresh_temporal_credit_results(args.results, args.checkpoint_root)
                 summary = regenerate_v1_report(
-                    args.results, args.output, summary_output=args.summary_output
+                    args.results,
+                    args.output,
+                    summary_output=args.summary_output,
+                    reproduction_comparison=args.reproduction_comparison,
                 )
                 print(
                     "v1 report written: "
                     f"conclusion={summary['assessment']['conclusion_class']}, "
                     f"path={args.output}"
+                )
+            elif args.v1_command == "compare":
+                comparison = compare_v1_result_files(args.left, args.right, args.output)
+                print(
+                    "v1 comparison complete: "
+                    f"stable_rows_equal={comparison['stable_rows_equal']}, "
+                    "checkpoint_digests_equal="
+                    f"{comparison['all_checkpoint_model_digests_equal']}"
                 )
     except (BenchmarkError, ManifestError, OSError, RuntimeError, ValueError) as error:
         print(f"error: {error}", file=sys.stderr)

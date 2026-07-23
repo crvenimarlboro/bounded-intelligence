@@ -119,6 +119,7 @@ uv run bilab v1 ablate \
   --output results/cognitive_core_v1/reproduction/ablate-seed1701.json
 uv run bilab v1 report \
   --results results/cognitive_core_v1/final-v1.0/results.json \
+  --reproduction-comparison experiments/cognitive_core_v1/reproduction_summary.json \
   --output experiments/cognitive_core_v1/REPORT.md \
   --summary-output experiments/cognitive_core_v1/final_summary.json
 ```
@@ -131,6 +132,7 @@ uv run bilab v1 report \
   --results results/cognitive_core_v1/final-v1.0/results.json \
   --checkpoint-root results/cognitive_core_v1/final-v1.0/checkpoints \
   --refresh-resource-accounting --refresh-temporal-credit \
+  --reproduction-comparison experiments/cognitive_core_v1/reproduction_summary.json \
   --output experiments/cognitive_core_v1/REPORT.md \
   --summary-output experiments/cognitive_core_v1/final_summary.json
 ```

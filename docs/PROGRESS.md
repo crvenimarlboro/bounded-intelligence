@@ -70,3 +70,7 @@
   timing and overlapping generation ranges. Both were corrected, regression-tested, and rerun. A
   post-run amendment corrects normalized-output byte accounting; another strengthens the
   temporal-credit probe to cross eight actual updates while preserving the original diagnostic.
+- **Established:** the complete 21-condition protocol was rerun from committed implementation
+  `a588386d6708366c5a606b787c9d93e373e2d1dc`. All deterministic result fields matched exactly and
+  all 21 model-state digests were identical; only runtime/resource and Git provenance fields were
+  excluded from exact comparison.

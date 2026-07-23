@@ -62,7 +62,8 @@ uv run bilab v1 evaluate --checkpoint results/cognitive_core_v1/final-v1.0/check
 uv run bilab v1 probe --checkpoint results/cognitive_core_v1/final-v1.0/checkpoints/core/seed-1701.pt --output results/cognitive_core_v1/reproduction/probe-seed1701.json
 uv run bilab v1 intervene --checkpoint results/cognitive_core_v1/final-v1.0/checkpoints/core/seed-1701.pt --output results/cognitive_core_v1/reproduction/intervene-seed1701.json
 uv run bilab v1 ablate --checkpoint results/cognitive_core_v1/final-v1.0/checkpoints/core/seed-1701.pt --output results/cognitive_core_v1/reproduction/ablate-seed1701.json
-uv run bilab v1 report --results results/cognitive_core_v1/final-v1.0/results.json --output experiments/cognitive_core_v1/REPORT.md --summary-output experiments/cognitive_core_v1/final_summary.json
+uv run bilab v1 compare --left results/cognitive_core_v1/final-v1.0/results.json --right results/cognitive_core_v1/committed-reproduction-v1.0/results.json --output experiments/cognitive_core_v1/reproduction_summary.json
+uv run bilab v1 report --results results/cognitive_core_v1/final-v1.0/results.json --reproduction-comparison experiments/cognitive_core_v1/reproduction_summary.json --output experiments/cognitive_core_v1/REPORT.md --summary-output experiments/cognitive_core_v1/final_summary.json
 ```
 
 Before completion: run sync, tests, lint, doctor, relevant real ingestion/experiments, and review the

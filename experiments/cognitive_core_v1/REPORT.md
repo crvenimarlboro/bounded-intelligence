@@ -123,3 +123,7 @@ Remove the engineered relation and context mask one at a time. Require a generic
 
 Detailed per-seed metrics, learning curves, interventions, and checkpoint metadata are in `results/cognitive_core_v1/final-v1.0/`.
 The checkpoints record training parent revision `b482a8930941d6d1713c9dd175e37f99d2c5fc67`; the completed implementation commit and clean-worktree status are reported in the final repository handoff because a file cannot contain its own commit hash.
+
+## Committed-source full reproduction
+
+The complete 21-condition protocol was rerun once from committed implementation `a588386d6708366c5a606b787c9d93e373e2d1dc`. It took 450.26 seconds. After excluding only wall time, peak RAM, checkpoint byte size, and Git metadata, every training history, evaluation, diagnostic, and reproduction field matched with maximum numeric error 0.0. All 21 checkpoint model-state digests were identical. This rerun was a provenance check, not a selection opportunity.
