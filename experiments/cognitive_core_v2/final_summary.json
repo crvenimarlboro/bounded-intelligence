@@ -1,0 +1,93 @@
+{
+  "schema_version": "1.0",
+  "experiment_id": "cognitive-core-v2-learned-routing-final",
+  "conclusion_class": "SUPPORTED AT V2-B",
+  "highest_supported_level": "V2-B",
+  "source_revision": "a1ec8895e72aa7a0261d966da8956beb4f5ecdb1",
+  "primary": {
+    "family": "relation_router",
+    "parameter_count": 43284,
+    "persistent_state_bytes": 8,
+    "seeds": [2701, 2702, 2703, 2704, 2705],
+    "optimizer_steps_per_seed": 800,
+    "training_observations_per_seed": 307200,
+    "training_wall_seconds_total": 131.27166765100037,
+    "metrics": {
+      "delay_mean": 0.99765625,
+      "delay_standard_deviation": 0.0016776170217090121,
+      "composition_mean": 1.0,
+      "recovery_mean": 0.9973429951690821,
+      "recovery_standard_deviation": 0.005314009661835728,
+      "retention_mean": 1.0,
+      "surface_relabelled_mean": 0.9963541666666667,
+      "random_control_mean": 0.47994791666666664,
+      "donor_state_consistency_mean": 1.0,
+      "rule_probe_mean": 0.8619791626930237,
+      "relation_probe_mean": 1.0,
+      "surface_probe_mean": 0.53125,
+      "routing_separation_mean": 0.8394229292869568
+    },
+    "interventions": {
+      "reset_mean": 0.5,
+      "frozen_mean": 0.5,
+      "random_state_mean": 0.4984375,
+      "shuffled_state_mean": 0.4881510416666667,
+      "noise_mean": 0.9201822916666667,
+      "uniform_routing_mean": 0.6748697916666667,
+      "random_routing_mean": 0.7458333333333333,
+      "swapped_routing_mean": 0.6756510416666667,
+      "writer_disabled_mean": 0.5,
+      "component_0_removed_mean": 0.713671875,
+      "component_1_removed_mean": 0.6815104166666667,
+      "corresponding_slot_permutation_preserved_all_seeds": true
+    },
+    "long_sequence_retained_accuracy_mean": {
+      "10": 0.975,
+      "100": 0.825,
+      "1000": 0.825,
+      "10000": 0.725,
+      "100000": 0.725
+    }
+  },
+  "controls": {
+    "v1_scaffolded_reference": {
+      "parameter_count": 43808,
+      "persistent_state_bytes": 8,
+      "delay_mean": 1.0,
+      "recovery_mean": 1.0
+    },
+    "no_memory": {
+      "parameter_count": 43588,
+      "persistent_state_bytes": 0,
+      "delay_mean": 0.5,
+      "recovery_mean": 0.5
+    },
+    "episodic_8_bytes": {
+      "parameter_count": 43322,
+      "persistent_state_bytes": 8,
+      "delay_mean": 0.9990885416666667,
+      "recovery_mean": 0.691304347826087
+    }
+  },
+  "resources": {
+    "complete_wall_seconds": 883.0074321080006,
+    "all_variant_training_wall_seconds": 439.2904313140002,
+    "peak_process_ram_bytes": 343293952,
+    "checkpoint_count": 20,
+    "checkpoint_bytes": 3696710,
+    "final_output_bytes": 5377688
+  },
+  "reproduction": {
+    "all_primary_checkpoint_digests_equal": true,
+    "all_primary_diagnostics_equal": true
+  },
+  "advancement": {
+    "v2a_supported": false,
+    "v2b_supported": true,
+    "v2c_supported": false,
+    "v2d_attempted": false,
+    "v2d_not_attempted_reason": "V2C did not pass the reserved pilot gate.",
+    "v2e_attempted": false,
+    "v2e_not_attempted_reason": "No fully generic V2C/V2D candidate passed."
+  }
+}

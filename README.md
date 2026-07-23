@@ -142,3 +142,37 @@ checkpoints, raw/normalized metrics, and CSV learning/adaptation curves. The pil
 candidate families and advance one curriculum factor at a time. All generated files under `results/`
 are ignored intentionally; the compact [final summary](experiments/cognitive_core_v1/final_summary.json),
 protocol, amendments, and report are tracked.
+
+## Cognitive Core v2
+
+V2 directly measures how much of v1's writer scaffold can be learned. The immutable v1 checkpoint
+audit shows that both the supplied input/outcome relation and the fixed routing/no-write mask carried
+substantial capability. V2A raw-relation discovery and two V2C joint generic mechanisms were
+seed-unstable. V2B, which retains the relation but learns routing and write strength, passed all five
+confirmatory seeds.
+
+The conclusion is **SUPPORTED AT V2-B**, not V2C. The 43,284-parameter V2B core uses exactly eight
+bytes, averaged 0.998 delayed accuracy and 0.997 one-feedback recovery, fell to chance under
+reset/freeze/writer-disabled controls, and reproduced exactly. Equal-byte episodic memory matched
+ordinary delay but recovered at only 0.691. Long distractor sequences exposed state drift. See the
+[v2 report](experiments/cognitive_core_v2/REPORT.md) and
+[candidate ledger](experiments/cognitive_core_v2/candidate_ledger.md).
+
+```bash
+uv run bilab manifest validate experiments/cognitive_core_v2/manifest.json
+uv run bilab v2 audit-v1
+uv run bilab v2 overfit
+uv run bilab v2 pilot \
+  --config experiments/cognitive_core_v2/configs/pilot.json \
+  --output results/cognitive_core_v2/pilot-v1.0
+nice -n 5 uv run bilab v2 final \
+  --config experiments/cognitive_core_v2/configs/final.json \
+  --manifest experiments/cognitive_core_v2/manifest.json \
+  --output results/cognitive_core_v2/final-v1.0
+uv run bilab v2 evaluate \
+  --checkpoint results/cognitive_core_v2/final-v1.0/checkpoints/v2b_relation_router/seed-2701.pt \
+  --output results/cognitive_core_v2/reproduction/evaluate-seed2701.json
+```
+
+V2D per-world operation binding and V2E trained quantization were intentionally not run because the
+preregistered V2C prerequisite failed.

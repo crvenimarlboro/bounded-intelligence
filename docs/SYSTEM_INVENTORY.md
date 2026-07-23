@@ -14,6 +14,10 @@ Observed 2026-07-22; exact runtime output comes from `uv run bilab doctor`.
 - Cognitive Core v1 confirmatory execution used six PyTorch threads, peaked at 346,906,624 resident
   bytes, and completed 21 training/evaluation runs in 409.26 seconds. Its 21 checkpoints total
   3,510,183 bytes. These are measurements of this exact run, not host guarantees.
+- Cognitive Core v2 confirmatory execution used six PyTorch threads, peaked at 343,293,952 resident
+  bytes, and completed 20 training runs plus five independent primary reproductions in 883.01
+  seconds. Its 20 checkpoints total 3,696,710 bytes. The longer time includes five 100,000-step
+  stability traces; it is not directly comparable with v1 wall time.
 
 ## Read-only external inference assets
 

@@ -74,3 +74,30 @@
   `a588386d6708366c5a606b787c9d93e373e2d1dc`. All deterministic result fields matched exactly and
   all 21 model-state digests were identical; only runtime/resource and Git provenance fields were
   excluded from exact comparison.
+
+## 2026-07-23 — Cognitive Core v2
+
+- **Established:** frozen v1 checkpoint interventions reduced delay from 1.000 to 0.533 without the
+  supplied relation, to 0.594 under uniform routing, and to 0.676 when distractor writes were
+  permitted. The relation and fixed routing/no-write scaffolds were causally important.
+- **Established:** the raw writer interface excludes external XOR/equality/relation, correct slot,
+  write target, hidden rule, future event, seed, and history. One-sequence, one-world, several-world,
+  explicit-relation, and supervised-relation diagnostics all overfit at 1.000.
+- **Disproven by current evidence:** V2A and both serious V2C families were not reproducible across
+  reserved pilot seeds. Doubling training observations and adding learned multiplicative features
+  did not stabilize joint relation/routing discovery.
+- **Supported at V2-B:** the relation-supplied learned router passed all five final seeds with 0.998
+  delay, 1.000 composition, 0.997 recovery, 1.000 retention, 1.000 donor consistency, and 0.480
+  random-control accuracy. Reset, freeze, and writer-disabled conditions were 0.500; uniform routing
+  was 0.675. All checkpoints and diagnostics reproduced exactly.
+- **Established:** the final core has 43,284 parameters and an exactly eight-byte state. Parameter-
+  matched controls were within 1.21%. Equal-byte episodic memory matched delay at 0.999 but recovered
+  at 0.691; no memory remained 0.500.
+- **Supported but uncertain:** learned routes separated the two primitive operations by 0.839 and
+  learned distractor write strength of only 0.038--0.058 without a mask. Both state components were
+  causal and corresponding slot/parameter permutations preserved behavior.
+- **Established counterevidence:** content drifted under extremely long distractor streams; mean
+  retained-rule accuracy fell from 0.975 at 10 updates to 0.725 at 100,000 while bytes stayed fixed.
+- One final-run diagnostic defect required amendment 0001: behavior-preserving float32
+  reparameterization changed loss by `8.38e-9`. The invalid partial run was preserved, a tolerance
+  regression added, and all final conditions rerun unchanged.

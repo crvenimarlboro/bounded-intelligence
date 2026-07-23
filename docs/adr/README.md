@@ -8,3 +8,4 @@ rollback path. Amend with a superseding ADR rather than erasing history.
 - [0002 — Separate cognitive state from research artifacts](0002-state-and-telemetry-boundaries.md)
 - [0003 — Fixed-byte online adaptation comparison](0003-fixed-byte-online-adaptation.md)
 - [0004 — Minimal factorized predictive state](0004-minimal-factorized-predictive-state.md)
+- [0005 — Retain learned routing evidence and defer dynamic binding](0005-learn-routing-before-dynamic-binding.md)

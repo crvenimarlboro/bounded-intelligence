@@ -64,6 +64,14 @@ uv run bilab v1 intervene --checkpoint results/cognitive_core_v1/final-v1.0/chec
 uv run bilab v1 ablate --checkpoint results/cognitive_core_v1/final-v1.0/checkpoints/core/seed-1701.pt --output results/cognitive_core_v1/reproduction/ablate-seed1701.json
 uv run bilab v1 compare --left results/cognitive_core_v1/final-v1.0/results.json --right results/cognitive_core_v1/committed-reproduction-v1.0/results.json --output experiments/cognitive_core_v1/reproduction_summary.json
 uv run bilab v1 report --results results/cognitive_core_v1/final-v1.0/results.json --reproduction-comparison experiments/cognitive_core_v1/reproduction_summary.json --output experiments/cognitive_core_v1/REPORT.md --summary-output experiments/cognitive_core_v1/final_summary.json
+uv run bilab manifest validate experiments/cognitive_core_v2/manifest.json
+uv run bilab v2 audit-v1
+uv run bilab v2 overfit
+uv run bilab v2 pilot --config experiments/cognitive_core_v2/configs/pilot.json --output results/cognitive_core_v2/pilot-v1.0
+uv run bilab v2 pilot --config experiments/cognitive_core_v2/configs/pilot_learning_curve.json --output results/cognitive_core_v2/pilot-learning-curve-v1.0
+uv run bilab v2 pilot --config experiments/cognitive_core_v2/configs/pilot_bilinear.json --output results/cognitive_core_v2/pilot-bilinear-v1.0
+nice -n 5 uv run bilab v2 final --config experiments/cognitive_core_v2/configs/final.json --manifest experiments/cognitive_core_v2/manifest.json --output results/cognitive_core_v2/final-v1.0
+uv run bilab v2 evaluate --checkpoint results/cognitive_core_v2/final-v1.0/checkpoints/v2b_relation_router/seed-2701.pt --output results/cognitive_core_v2/reproduction/evaluate-seed2701.json
 ```
 
 Before completion: run sync, tests, lint, doctor, relevant real ingestion/experiments, and review the

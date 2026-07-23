@@ -14,12 +14,17 @@ observations, compute, and persistent bytes across enough seeds to estimate unce
 V0 was unsupported. V1 then established causal eight-byte adaptation through Boolean composition,
 global relabelling, delay, and rule replacement, while exposing task-specific writer scaffolding.
 
-## 2. Generic sufficient-statistic discovery — next
+## 2. Generic sufficient-statistic discovery — routing supported, relation discovery next
 
 Ablate the hand-computed input/outcome relation and fixed context-to-slot mask separately. Require a
 generic writer to rediscover the two-bit sufficient state under the same eight-byte budget, training
 observations, final worlds, causal swaps, and episodic/no-memory controls. Then relabel operation IDs
 per world. Failure localizes the frontier to representation discovery rather than retention.
+
+V2B removed fixed routing and no-write masks with five-seed causal evidence. V2A/V2C did not
+reproducibly remove the relation scaffold, so the current frontier is autonomous sufficient-
+statistic discovery plus long-horizon content stability. Do not begin per-world dynamic binding or
+trained state quantization until raw-field-only V2C passes.
 
 ## 3. Compression and transfer
 
