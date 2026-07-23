@@ -42,6 +42,9 @@ from bilab.training.v1_final import (
     regenerate_v1_report,
     run_confirmatory,
 )
+from bilab.v2.final import evaluate_v2_checkpoint, run_v2_final
+from bilab.v2.runner import run_v2_overfit, run_v2_pilot
+from bilab.v2.scaffold_audit import run_v1_scaffold_audit
 
 
 def _paths(inputs: Sequence[str]) -> list[Path]:
@@ -272,6 +275,71 @@ def build_parser() -> argparse.ArgumentParser:
     v1_compare.add_argument("--left", type=Path, required=True)
     v1_compare.add_argument("--right", type=Path, required=True)
     v1_compare.add_argument("--output", type=Path, required=True)
+
+    v2 = subcommands.add_parser("v2", help="run Cognitive Core v2 scaffold-removal experiments")
+    v2_commands = v2.add_subparsers(dest="v2_command", required=True)
+    v2_audit = v2_commands.add_parser(
+        "audit-v1", help="measure dependence of frozen v1 checkpoints on engineered scaffolds"
+    )
+    v2_audit.add_argument(
+        "--config",
+        type=Path,
+        default=repository_root() / "experiments/cognitive_core_v1/configs/final.json",
+    )
+    v2_audit.add_argument(
+        "--checkpoint-root",
+        type=Path,
+        default=repository_root() / "results/cognitive_core_v1/final-v1.0/checkpoints",
+    )
+    v2_audit.add_argument(
+        "--output",
+        type=Path,
+        default=repository_root() / "results/cognitive_core_v2/v1-scaffold-audit/results.json",
+    )
+    v2_overfit = v2_commands.add_parser("overfit", help="run the v2 fixed-data learnability ladder")
+    v2_overfit.add_argument(
+        "--output",
+        type=Path,
+        default=repository_root() / "results/cognitive_core_v2/overfit/results.json",
+    )
+    v2_pilot = v2_commands.add_parser(
+        "pilot", help="train reserved v2 scaffold-removal pilot candidates"
+    )
+    v2_pilot.add_argument(
+        "--config",
+        type=Path,
+        default=repository_root() / "experiments/cognitive_core_v2/configs/pilot.json",
+    )
+    v2_pilot.add_argument(
+        "--output",
+        type=Path,
+        default=repository_root() / "results/cognitive_core_v2/pilot-v1.0",
+    )
+    v2_final = v2_commands.add_parser(
+        "final", help="run the frozen v2 confirmatory protocol and controls"
+    )
+    v2_final.add_argument(
+        "--config",
+        type=Path,
+        default=repository_root() / "experiments/cognitive_core_v2/configs/final.json",
+    )
+    v2_final.add_argument(
+        "--manifest",
+        type=Path,
+        default=repository_root() / "experiments/cognitive_core_v2/manifest.json",
+    )
+    v2_final.add_argument(
+        "--output",
+        type=Path,
+        default=repository_root() / "results/cognitive_core_v2/final-v1.0",
+    )
+    v2_evaluate = v2_commands.add_parser(
+        "evaluate", help="independently evaluate a saved v2 checkpoint"
+    )
+    v2_evaluate.add_argument("--checkpoint", type=Path, required=True)
+    v2_evaluate.add_argument("--output", type=Path, required=True)
+    v2_evaluate.add_argument("--seed-base", type=int, default=420_000)
+    v2_evaluate.add_argument("--groups", type=int, default=64)
     return parser
 
 
@@ -434,6 +502,51 @@ def main(argv: Sequence[str] | None = None) -> int:
                     f"stable_rows_equal={comparison['stable_rows_equal']}, "
                     "checkpoint_digests_equal="
                     f"{comparison['all_checkpoint_model_digests_equal']}"
+                )
+        elif args.command == "v2":
+            if args.v2_command == "audit-v1":
+                result = run_v1_scaffold_audit(args.config, args.checkpoint_root, args.output)
+                native = result["aggregate"]["native"]
+                print(
+                    "v1 scaffold audit complete: "
+                    f"delay={native['delay_accuracy']['mean']:.3f}, "
+                    f"composition={native['composition_accuracy']['mean']:.3f}, "
+                    f"wall_seconds={result['wall_seconds']:.2f}"
+                )
+            elif args.v2_command == "overfit":
+                result = run_v2_overfit(args.output)
+                print(
+                    "v2 learnability ladder complete: "
+                    f"all_primary_overfit_pass={result['all_primary_overfit_pass']}"
+                )
+            elif args.v2_command == "pilot":
+                result = run_v2_pilot(repository_root(), args.config, args.output)
+                passed = [
+                    name for name, summary in result["summary"].items() if summary["all_seeds_pass"]
+                ]
+                print(
+                    "v2 pilot complete: "
+                    f"passing_candidates={','.join(passed) or 'none'}, "
+                    f"wall_seconds={result['wall_seconds']:.2f}"
+                )
+            elif args.v2_command == "final":
+                result = run_v2_final(repository_root(), args.config, args.manifest, args.output)
+                print(
+                    "v2 final complete: "
+                    f"all_primary_reproduced={result['all_primary_reproduced']}, "
+                    f"wall_seconds={result['wall_seconds']:.2f}"
+                )
+            elif args.v2_command == "evaluate":
+                result = evaluate_v2_checkpoint(
+                    args.checkpoint,
+                    args.output,
+                    seed_base=args.seed_base,
+                    groups=args.groups,
+                )
+                diagnostics = result["diagnostics"]
+                print(
+                    "v2 checkpoint evaluation complete: "
+                    f"delay={diagnostics['delay']['fully_informed_accuracy']:.3f}"
                 )
     except (BenchmarkError, ManifestError, OSError, RuntimeError, ValueError) as error:
         print(f"error: {error}", file=sys.stderr)

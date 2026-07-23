@@ -1,0 +1,75 @@
+{
+  "schema_version": "1.0",
+  "experiment_id": "cognitive-core-v2-scaffold-removal-pilot-learning-curve",
+  "seeds": [2201, 2202],
+  "training": {
+    "world_seed_start": 260000,
+    "validation_seed_start": 275000,
+    "optimizer_steps": 1600,
+    "batch_groups": 8,
+    "episode_steps": 12,
+    "environment": "mixed",
+    "validation_groups": 64,
+    "validation_interval": 50,
+    "learning_rate": 0.003,
+    "gradient_clip": 1.0,
+    "torch_threads": 6,
+    "checkpoint_selection": "final_step",
+    "observations_per_candidate_seed": 614400
+  },
+  "evaluation_seed_start": 290000,
+  "evaluation_groups": 64,
+  "candidates": {
+    "v2a_raw_fixed_extended": {
+      "stage": "v2a",
+      "family": "raw_fixed",
+      "hidden_dim": 64,
+      "state_dim": 2
+    },
+    "v2c_raw_router_extended": {
+      "stage": "v2c",
+      "family": "raw_router",
+      "hidden_dim": 64,
+      "state_dim": 2
+    },
+    "v2c_raw_gru_extended": {
+      "stage": "v2c",
+      "family": "raw_gru",
+      "hidden_dim": 64,
+      "state_dim": 2
+    }
+  },
+  "stage_gates": {
+    "v2a": {
+      "minimum_delay": 0.95,
+      "minimum_composition": 0.95,
+      "minimum_recovery": 0.95,
+      "minimum_retention": 0.95,
+      "minimum_donor": 0.95,
+      "minimum_state_drop": 0.30,
+      "maximum_random_deviation": 0.05
+    },
+    "v2c": {
+      "minimum_delay": 0.90,
+      "minimum_composition": 0.90,
+      "minimum_recovery": 0.90,
+      "minimum_retention": 0.90,
+      "minimum_donor": 0.90,
+      "minimum_state_drop": 0.30,
+      "maximum_random_deviation": 0.05,
+      "minimum_route_separation": 0.50,
+      "minimum_rule_probe": 0.90
+    }
+  },
+  "candidate_selection_rule": [
+    "protocol compliance",
+    "pass the unchanged stage-specific gates on every pilot seed",
+    "higher minimum held-out adaptation",
+    "larger state and routing causal drops",
+    "higher donor consistency",
+    "lower persistent bytes",
+    "fewer parameters",
+    "fewer observations",
+    "lower wall time"
+  ]
+}

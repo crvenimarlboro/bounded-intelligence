@@ -1,0 +1,44 @@
+{
+  "schema_version": "1.0",
+  "interface": "cognitive-core-v2-raw-feedback",
+  "fields": [
+    {
+      "name": "current_input",
+      "origin": "public observation",
+      "observable": "before prediction",
+      "dimensions": 1,
+      "derived_by": "none"
+    },
+    {
+      "name": "operation_one_hot",
+      "origin": "public operation symbol",
+      "observable": "before prediction",
+      "dimensions": 4,
+      "derived_by": "generic categorical encoding inside model"
+    },
+    {
+      "name": "phase",
+      "origin": "public episode phase marker",
+      "observable": "before prediction",
+      "dimensions": 1,
+      "derived_by": "none"
+    },
+    {
+      "name": "observed_outcome_one_hot",
+      "origin": "public outcome feedback",
+      "observable": "only after current prediction",
+      "dimensions": 2,
+      "derived_by": "generic categorical encoding inside model"
+    }
+  ],
+  "prohibited": [
+    "input_xor_outcome",
+    "input_equals_outcome",
+    "signed_rule_relation",
+    "hidden_rule",
+    "correct_state_slot",
+    "write_or_no_write_target",
+    "future_outcome",
+    "generation_seed"
+  ]
+}

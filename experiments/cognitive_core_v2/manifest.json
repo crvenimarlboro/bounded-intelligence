@@ -1,0 +1,70 @@
+{
+  "schema_version": "1.0",
+  "experiment_id": "cognitive-core-v2-learned-routing-final",
+  "hypothesis": "With the public COPY/FLIP relation temporarily supplied but with no fixed operation-to-slot mask or no-write mask, an eight-byte learned router can discover where and when to update bounded state and causally support delayed prediction, composition, retention, and rule revision across unseen worlds.",
+  "baseline": "The immutable v1 scaffolded mechanism, an independently trained parameter-matched current-observation no-memory network, and an independently trained parameter-matched deterministic eight-byte episodic ring receive identical mixed worlds, public observations, optimizer steps, final model seeds, and evaluation worlds.",
+  "intervention": "A 43,284-parameter two-float32 learned soft-slot router receives the v1 public relation only in its value encoder, while its route, write strength, non-write behavior, state reader, and predictions are learned. Held-out evaluation freezes weights and permits only the eight-byte state to change.",
+  "controlled_variables": {
+    "frozen_config": "experiments/cognitive_core_v2/configs/final.json",
+    "writer_contract": "experiments/cognitive_core_v2/writer_input_contract.json",
+    "persistent_bytes": 8,
+    "training_seed_range": "400000-406399",
+    "validation_seed_range": "408000-408063",
+    "evaluation_seed_range": "420000-424999",
+    "model_seeds": [2701, 2702, 2703, 2704, 2705],
+    "training_observations_per_variant_seed": 307200,
+    "optimizer_steps": 800,
+    "bptt_steps": 12,
+    "checkpoint_selection": "final optimizer step",
+    "parameter_match_tolerance_fraction": 0.02,
+    "pilot_selection": "V2B was the only candidate passing every stage gate on both reserved pilot seeds; all V2A/V2C failures are retained."
+  },
+  "independent_variables": [
+    "runtime_state_mechanism",
+    "routing_intervention",
+    "state_intervention",
+    "v1_relation_scaffold_presence"
+  ],
+  "dependent_metrics": [
+    "delayed_accuracy",
+    "composition_accuracy",
+    "rule_change_recovery",
+    "unrelated_rule_retention",
+    "surface_relabelled_accuracy",
+    "random_control_accuracy",
+    "routing_separation",
+    "routing_intervention_drop",
+    "donor_state_consistency",
+    "state_probe_accuracy",
+    "persistent_bytes",
+    "parameter_count",
+    "training_observations",
+    "wall_seconds",
+    "peak_ram_bytes",
+    "checkpoint_bytes"
+  ],
+  "resource_budgets": {
+    "persistent_cognitive_bytes_per_world": 8,
+    "max_peak_ram_bytes": 4294967296,
+    "max_total_checkpoint_bytes": 314572800,
+    "max_total_output_bytes": 786432000,
+    "max_total_wall_seconds": 5400,
+    "training_observations_per_variant_seed": 307200,
+    "model_seed_count": 5
+  },
+  "expected_result": "Every V2B seed should reach at least 0.95 delay, composition, recovery, retention, and donor consistency; remain within 0.05 of chance on random outcomes; lose at least 0.30 under reset and frozen state; separate primitive routes by at least 0.50; lose at least 0.20 under uniform routing; preserve behavior under a corresponding slot/parameter permutation; and reproduce exactly after checkpoint reload.",
+  "falsification_condition": "V2B is unsupported if any primary seed misses a threshold, routing is not causally necessary, corresponding slot permutation fails, weights change online, persistent state differs from eight bytes, parameter matching exceeds two percent, random-control deviation exceeds 0.05, final ranges overlap, or checkpoint reproduction differs. Passing V2B does not support raw relation discovery or joint V2C.",
+  "repetition_count": 5,
+  "seeds": [2701, 2702, 2703, 2704, 2705],
+  "artifact_locations": {
+    "checkpoints": "results/cognitive_core_v2/final-v1.0/checkpoints",
+    "normalized_results": "results/cognitive_core_v2/final-v1.0/results.json",
+    "learning_curves": "results/cognitive_core_v2/final-v1.0/learning_curves.csv",
+    "adaptation_curves": "results/cognitive_core_v2/final-v1.0/adaptation_curves.csv",
+    "report": "experiments/cognitive_core_v2/REPORT.md"
+  },
+  "stopping_rule": "Run all four declared variants on all five seeds and every declared V2B intervention using final-step checkpoints. Stop only for non-finite loss, leakage, resource breach, or a software defect requiring a numbered amendment and complete rerun of affected conditions.",
+  "status": "planned",
+  "final_conclusion": null,
+  "evidence_classification": "project_hypothesis"
+}
