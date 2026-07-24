@@ -288,6 +288,41 @@ def _prepare_v3c_staged_initialization(
     }
 
 
+def _diagnose_staged_initialization(
+    config: V3TrainConfig,
+    initial_state_dict: dict[str, torch.Tensor],
+    *,
+    seed_base: int,
+    groups: int,
+    long_lengths: tuple[int, ...],
+) -> dict[str, Any]:
+    """Evaluate the composed system before joint optimization on identical audit worlds."""
+
+    seed_v3(config.seed, config.torch_threads)
+    model = build_v3_model(config.model_config())
+    own = model.state_dict()
+    compatible = {
+        name: tensor
+        for name, tensor in initial_state_dict.items()
+        if name in own and own[name].shape == tensor.shape
+    }
+    model.load_state_dict(compatible, strict=False)
+    diagnostics = diagnose_v3_candidate(
+        model,
+        seed=config.seed,
+        seed_base=seed_base,
+        groups=groups,
+        long_lengths=long_lengths,
+    )
+    row = {"stage": "v3c", "diagnostics": diagnostics}
+    return {
+        "diagnostics": diagnostics,
+        "passes_behavioral_stage_gates": _passes_v3c_behavioral_gates(row),
+        "passes_exact_preservation": _passes_exact_preservation(diagnostics),
+        "passes_stage_gates": _passes_stage(row),
+    }
+
+
 def _train_config(
     document: dict[str, Any],
     candidate: dict[str, Any],
@@ -358,9 +393,9 @@ def _metric(row: dict[str, Any], name: str) -> float:
     return float(value)
 
 
-def _passes_stage(row: dict[str, Any]) -> bool:
+def _passes_common_behavioral_gates(row: dict[str, Any]) -> bool:
     delay = _metric(row, "delay")
-    common = all(
+    return all(
         (
             delay >= 0.95,
             _metric(row, "composition") >= 0.95,
@@ -375,6 +410,43 @@ def _passes_stage(row: dict[str, Any]) -> bool:
             delay - _metric(row, "writer_disabled") >= 0.30,
         )
     )
+
+
+def _passes_v3c_behavioral_gates(row: dict[str, Any]) -> bool:
+    delay = _metric(row, "delay")
+    return _passes_common_behavioral_gates(row) and all(
+        (
+            delay - _metric(row, "relation_zero") >= 0.20,
+            _metric(row, "long_100000") >= 0.90,
+            _metric(row, "long_recovery") >= 0.90,
+            _metric(row, "long_retention") >= 0.90,
+        )
+    )
+
+
+def _passes_exact_preservation(diagnostics: dict[str, Any]) -> bool:
+    preservation = diagnostics["preservation"]
+    measurements = preservation["measurements"].values()
+    return all(
+        (
+            preservation["state_size_constant"],
+            preservation["total_changed_state_events"] == 0,
+            preservation["total_code_transitions"] == 0,
+            preservation["total_nonzero_distractor_write_events"] == 0,
+            all(
+                measurement["drift_norm"] == 0.0
+                and measurement["predictions_bit_identical_to_reference"] is True
+                and measurement["cumulative_changed_state_events"] == 0
+                and measurement["cumulative_nonzero_write_events"] == 0
+                for measurement in measurements
+            ),
+        )
+    )
+
+
+def _passes_stage(row: dict[str, Any]) -> bool:
+    delay = _metric(row, "delay")
+    common = _passes_common_behavioral_gates(row)
     if row["stage"] == "v3a":
         return common and delay - _metric(row, "relation_zero") >= 0.20
     if row["stage"] == "v3b":
@@ -391,14 +463,7 @@ def _passes_stage(row: dict[str, Any]) -> bool:
                 preservation["state_size_constant"],
             )
         )
-    return common and all(
-        (
-            delay - _metric(row, "relation_zero") >= 0.20,
-            _metric(row, "long_100000") >= 0.90,
-            _metric(row, "long_recovery") >= 0.90,
-            _metric(row, "long_retention") >= 0.90,
-        )
-    )
+    return _passes_v3c_behavioral_gates(row) and _passes_exact_preservation(row["diagnostics"])
 
 
 def _summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
@@ -436,6 +501,13 @@ def _summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
             "persistent_state_bytes": selected[0]["training"]["persistent_state_bytes"],
             "initialization": selected[0]["training"]["initialization"],
             "all_seeds_pass": all(row["passes_stage_gates"] for row in selected),
+            "all_seeds_pass_behavioral": all(
+                row.get("passes_behavioral_stage_gates", row["passes_stage_gates"])
+                for row in selected
+            ),
+            "all_seeds_pass_exact_preservation": all(
+                row.get("passes_exact_preservation", True) for row in selected
+            ),
             "metrics": {
                 name: {
                     "mean": statistics.mean(values),
@@ -480,12 +552,21 @@ def run_v3_pilot(
             config = _train_config(document, candidate, seed)
             initial_state_dict: dict[str, torch.Tensor] | None = None
             initialization_metadata: dict[str, Any] | None = None
+            initial_evaluation: dict[str, Any] | None = None
             if config.initialization == "staged":
                 if stage != "v3c":
                     raise ValueError("staged initialization is reserved for V3C")
                 initial_state_dict, initialization_metadata = _prepare_v3c_staged_initialization(
                     repo, candidate, config
                 )
+                if candidate.get("diagnose_initialization", False):
+                    initial_evaluation = _diagnose_staged_initialization(
+                        config,
+                        initial_state_dict,
+                        seed_base=document["evaluation_seed_start"],
+                        groups=document["evaluation_groups"],
+                        long_lengths=lengths,
+                    )
             run = train_v3_candidate(
                 config,
                 initial_state_dict=initial_state_dict,
@@ -516,6 +597,11 @@ def run_v3_pilot(
                 "diagnostics": diagnostics,
                 "checkpoint": metadata,
             }
+            if initial_evaluation is not None:
+                row["initial_evaluation"] = initial_evaluation
+            if stage == "v3c":
+                row["passes_behavioral_stage_gates"] = _passes_v3c_behavioral_gates(row)
+                row["passes_exact_preservation"] = _passes_exact_preservation(diagnostics)
             row["passes_stage_gates"] = _passes_stage(row)
             rows.append(row)
             _write_json(

@@ -1,8 +1,12 @@
 from __future__ import annotations
 
+import json
+from pathlib import Path
+
 import torch
 
 from bilab.v3.models import V3ModelConfig, build_v3_model
+from bilab.v3.runner import _passes_exact_preservation
 from bilab.v3.training import compose_v3c_staged_state_dict
 
 
@@ -111,3 +115,55 @@ def test_staged_composition_uses_v3a_writer_and_v3b_memory_subsystems() -> None:
         for name, source in metadata["parameter_source"].items()
         if name.startswith(("router.", "write_controller.", "value_candidate."))
     )
+
+
+def _preservation_diagnostics(
+    *,
+    changed: int = 0,
+    writes: int = 0,
+    drift: float = 0.0,
+    bit_identical: bool = True,
+) -> dict[str, object]:
+    measurement = {
+        "drift_norm": drift,
+        "predictions_bit_identical_to_reference": bit_identical,
+        "cumulative_changed_state_events": changed,
+        "cumulative_nonzero_write_events": writes,
+    }
+    return {
+        "preservation": {
+            "state_size_constant": True,
+            "total_changed_state_events": changed,
+            "total_code_transitions": 0,
+            "total_nonzero_distractor_write_events": writes,
+            "measurements": {"10": measurement, "100000": measurement.copy()},
+        }
+    }
+
+
+def test_exact_preservation_gate_accepts_only_bit_exact_skip() -> None:
+    assert _passes_exact_preservation(_preservation_diagnostics())
+    assert not _passes_exact_preservation(
+        _preservation_diagnostics(changed=100000, writes=100000, drift=0.01)
+    )
+    assert not _passes_exact_preservation(_preservation_diagnostics(bit_identical=False))
+
+
+def test_cross_pair_config_declares_every_source_pair_once() -> None:
+    path = Path("experiments/cognitive_core_v3/configs/pilot_xpair.json")
+    document = json.loads(path.read_text(encoding="utf-8"))
+    pairs: set[tuple[int, int]] = set()
+    for candidate in document["candidates"].values():
+        sources = candidate["staged_sources"]
+        raw_seed = int(sources["raw_relation"]["source_seed_map"]["3401"])
+        preservation_seed = int(sources["preservation"]["source_seed_map"]["3401"])
+        pairs.add((raw_seed, preservation_seed))
+        assert candidate["diagnose_initialization"] is True
+        assert candidate["family"] == "raw_soft_router_hard_skip_softtrain"
+
+    assert pairs == {
+        (3201, 3201),
+        (3201, 3202),
+        (3202, 3201),
+        (3202, 3202),
+    }
