@@ -42,85 +42,110 @@ def _write_json(path: Path, document: dict[str, Any]) -> None:
     temporary.replace(path)
 
 
-def _job_directory(output: Path, candidate: str, seed: int) -> Path:
-    return output / "jobs" / candidate / f"seed-{seed}"
+def _job_directory(output: Path, seed: int) -> Path:
+    """Return one resumable job directory containing all candidates for a seed."""
+    return output / "jobs" / f"seed-{seed}"
 
 
-def _completed_job(path: Path) -> dict[str, Any] | None:
+def _completed_job(
+    path: Path,
+    expected_candidates: set[str],
+) -> dict[str, Any] | None:
     result_path = path / "pilot_results.json"
     if not result_path.exists():
         return None
+
     try:
         document = _read_json(result_path)
     except (OSError, json.JSONDecodeError):
         return None
-    if document.get("status") != "completed" or len(document.get("rows", [])) != 1:
+
+    rows = document.get("rows", [])
+    observed_candidates = {str(row.get("candidate")) for row in rows if isinstance(row, dict)}
+
+    if document.get("status") != "completed":
         return None
+    if len(rows) != len(expected_candidates):
+        return None
+    if observed_candidates != expected_candidates:
+        return None
+
     return document
 
 
 def _preserve_incomplete(path: Path) -> None:
     if not path.exists():
         return
+
     stamp = datetime.now(UTC).strftime("%Y%m%d-%H%M%S")
     backup = path.with_name(f"{path.name}-incomplete-{stamp}")
     shutil.move(str(path), str(backup))
     print(f"preserved incomplete job as {backup}", flush=True)
 
 
-def _job_config(base: dict[str, Any], candidate_name: str, seed: int) -> dict[str, Any]:
+def _job_config(base: dict[str, Any], seed: int) -> dict[str, Any]:
+    """Create a one-seed configuration while retaining all serious candidates."""
     document = copy.deepcopy(base)
-    document["experiment_id"] = f"{base['experiment_id']}-{candidate_name}-seed-{seed}"
+    document["experiment_id"] = f"{base['experiment_id']}-seed-{seed}"
     document["seeds"] = [seed]
-    document["candidates"] = {candidate_name: copy.deepcopy(base["candidates"][candidate_name])}
     return document
 
 
 def _aggregate(base: dict[str, Any], output: Path) -> dict[str, Any]:
     rows: list[dict[str, Any]] = []
     jobs: list[dict[str, Any]] = []
+
     candidate_names = list(base["candidates"])
+    expected_candidates = set(candidate_names)
     seeds = [int(seed) for seed in base["seeds"]]
 
-    for candidate_name in candidate_names:
-        for seed in seeds:
-            job_path = _job_directory(output, candidate_name, seed)
-            result = _completed_job(job_path)
-            completed = result is not None
-            jobs.append(
-                {
-                    "candidate": candidate_name,
-                    "seed": seed,
-                    "completed": completed,
-                    "result": str(job_path / "pilot_results.json"),
-                }
-            )
-            if completed:
-                rows.append(result["rows"][0])
+    for seed in seeds:
+        job_path = _job_directory(output, seed)
+        result = _completed_job(job_path, expected_candidates)
+        completed = result is not None
+
+        jobs.append(
+            {
+                "seed": seed,
+                "completed": completed,
+                "expected_candidates": candidate_names,
+                "result": str(job_path / "pilot_results.json"),
+            }
+        )
+
+        if completed:
+            rows.extend(result["rows"])
 
     summary: dict[str, Any] = {}
+
     for candidate_name in candidate_names:
         selected = [row for row in rows if row.get("candidate") == candidate_name]
         behavioral = sum(row.get("passes_behavioral_stage_gates") is True for row in selected)
         exact = sum(row.get("passes_exact_preservation") is True for row in selected)
         combined = sum(row.get("passes_stage_gates") is True for row in selected)
+
         summary[candidate_name] = {
             "completed_seeds": len(selected),
             "total_seeds": len(seeds),
             "behavioral_passes": behavioral,
             "exact_preservation_passes": exact,
             "combined_passes": combined,
-            "primary_six_of_six": len(selected) == len(seeds) and combined == len(seeds),
-            "near_replication_five_of_six": len(selected) == len(seeds)
-            and combined == len(seeds) - 1,
+            "primary_six_of_six": (len(selected) == len(seeds) and combined == len(seeds)),
+            "near_replication_five_of_six": (
+                len(selected) == len(seeds) and combined == len(seeds) - 1
+            ),
         }
+
+    expected_rows = len(candidate_names) * len(seeds)
 
     return {
         "schema_version": "1.0",
         "experiment_id": base["experiment_id"],
-        "status": "completed" if len(rows) == len(candidate_names) * len(seeds) else "in_progress",
+        "status": ("completed" if len(rows) == expected_rows else "in_progress"),
+        "completed_seed_bundles": sum(job["completed"] is True for job in jobs),
+        "total_seed_bundles": len(seeds),
         "completed_jobs": len(rows),
-        "total_jobs": len(candidate_names) * len(seeds),
+        "total_jobs": expected_rows,
         "candidate_selection_rule": base["candidate_selection_rule"],
         "jobs": jobs,
         "rows": rows,
@@ -132,66 +157,96 @@ def main() -> int:
     arguments = _parser().parse_args()
     repo = Path.cwd()
     base = _read_json(arguments.config)
+
     arguments.output.mkdir(parents=True, exist_ok=True)
     aggregate_path = arguments.output / "scale_results.json"
 
     candidate_names = list(base["candidates"])
+    expected_candidates = set(candidate_names)
     seeds = [int(seed) for seed in base["seeds"]]
-    total = len(candidate_names) * len(seeds)
-    ordinal = 0
+    total_bundles = len(seeds)
 
-    for candidate_name in candidate_names:
-        for seed in seeds:
-            ordinal += 1
-            job_path = _job_directory(arguments.output, candidate_name, seed)
-            if _completed_job(job_path) is not None:
-                print(
-                    f"[{ordinal}/{total}] skipping completed {candidate_name} seed={seed}",
-                    flush=True,
-                )
-                _write_json(aggregate_path, _aggregate(base, arguments.output))
-                continue
+    for ordinal, seed in enumerate(seeds, start=1):
+        job_path = _job_directory(arguments.output, seed)
+        completed = _completed_job(job_path, expected_candidates)
 
-            _preserve_incomplete(job_path)
-            job_path.mkdir(parents=True, exist_ok=True)
-            config_path = job_path / "job_config.json"
-            _write_json(config_path, _job_config(base, candidate_name, seed))
-
+        if completed is not None:
             print(
-                f"[{ordinal}/{total}] running {candidate_name} seed={seed}",
+                f"[{ordinal}/{total_bundles}] "
+                f"skipping completed seed={seed} "
+                f"with {len(candidate_names)} candidates",
                 flush=True,
             )
-            run_v3_pilot(repo, config_path, job_path, stage="v3c")
-            result = _completed_job(job_path)
-            if result is None:
-                raise RuntimeError(
-                    f"job did not produce one completed row: {candidate_name} seed={seed}"
-                )
+            _write_json(
+                aggregate_path,
+                _aggregate(base, arguments.output),
+            )
+            continue
 
-            row = result["rows"][0]
+        _preserve_incomplete(job_path)
+        job_path.mkdir(parents=True, exist_ok=True)
+
+        config_path = job_path / "job_config.json"
+        _write_json(config_path, _job_config(base, seed))
+
+        print(
+            f"[{ordinal}/{total_bundles}] running seed={seed} "
+            f"with {len(candidate_names)} serious candidates",
+            flush=True,
+        )
+
+        run_v3_pilot(
+            repo,
+            config_path,
+            job_path,
+            stage="v3c",
+        )
+
+        result = _completed_job(job_path, expected_candidates)
+        if result is None:
+            raise RuntimeError(
+                f"seed bundle did not produce {len(candidate_names)} completed rows: seed={seed}"
+            )
+
+        for row in result["rows"]:
             print(
-                f"[{ordinal}/{total}] completed {candidate_name} seed={seed} "
+                f"[{ordinal}/{total_bundles}] "
+                f"completed {row.get('candidate')} seed={seed} "
                 f"behavioral={row.get('passes_behavioral_stage_gates')} "
                 f"exact={row.get('passes_exact_preservation')} "
                 f"all={row.get('passes_stage_gates')}",
                 flush=True,
             )
-            _write_json(aggregate_path, _aggregate(base, arguments.output))
+
+        _write_json(
+            aggregate_path,
+            _aggregate(base, arguments.output),
+        )
 
     final = _aggregate(base, arguments.output)
     _write_json(aggregate_path, final)
+
     print(
-        f"status={final['status']} jobs={final['completed_jobs']}/{final['total_jobs']}",
+        f"status={final['status']} "
+        f"seed_bundles="
+        f"{final['completed_seed_bundles']}/"
+        f"{final['total_seed_bundles']} "
+        f"candidate_seed_rows="
+        f"{final['completed_jobs']}/{final['total_jobs']}",
         flush=True,
     )
+
     for candidate_name, summary in final["summary"].items():
+        total = summary["total_seeds"]
         print(
-            f"{candidate_name}: behavioral={summary['behavioral_passes']}/6 "
-            f"exact={summary['exact_preservation_passes']}/6 "
-            f"combined={summary['combined_passes']}/6 "
+            f"{candidate_name}: "
+            f"behavioral={summary['behavioral_passes']}/{total} "
+            f"exact={summary['exact_preservation_passes']}/{total} "
+            f"combined={summary['combined_passes']}/{total} "
             f"primary={summary['primary_six_of_six']}",
             flush=True,
         )
+
     return 0
 
 
