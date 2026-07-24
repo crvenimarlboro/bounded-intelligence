@@ -23,6 +23,7 @@ from bilab.v3.environments import balance_evidence_inputs
 from bilab.v3.models import V3ModelConfig, build_v3_model
 from bilab.v3.training import (
     V3TrainConfig,
+    compose_v3c_staged_state_dict,
     diagnose_v3_candidate,
     preservation_stress,
     seed_v3,
@@ -180,6 +181,113 @@ def validate_v3_protocol(contract_path: Path) -> dict[str, Any]:
     }
 
 
+def _resolve_repo_path(repo: Path, value: str) -> Path:
+    path = Path(value)
+    return path if path.is_absolute() else repo / path
+
+
+def _read_pilot_result(repo: Path, value: str) -> tuple[Path, dict[str, Any]]:
+    path = _resolve_repo_path(repo, value)
+    if not path.is_file():
+        raise FileNotFoundError(f"required V3 pilot result does not exist: {path}")
+    return path, json.loads(path.read_text(encoding="utf-8"))
+
+
+def _rows_for_candidate(document: dict[str, Any], candidate: str) -> list[dict[str, Any]]:
+    return [row for row in document.get("rows", []) if row.get("candidate") == candidate]
+
+
+def _validate_v3c_prerequisites(repo: Path, document: dict[str, Any]) -> list[dict[str, Any]]:
+    """Require passing isolated V3A and V3B evidence before a joint pilot can run."""
+
+    prerequisites = document.get("prerequisites", [])
+    if len(prerequisites) < 2:
+        raise ValueError("V3C configuration must declare passing V3A and V3B prerequisites")
+    validated: list[dict[str, Any]] = []
+    stages: set[str] = set()
+    for specification in prerequisites:
+        path, result = _read_pilot_result(repo, specification["results"])
+        candidate = specification["candidate"]
+        rows = _rows_for_candidate(result, candidate)
+        if not rows or not all(row.get("passes_stage_gates") is True for row in rows):
+            raise ValueError(f"V3C prerequisite did not pass all recorded seeds: {candidate}")
+        stage = rows[0]["stage"]
+        if any(row["stage"] != stage for row in rows):
+            raise ValueError(f"V3C prerequisite mixes stages: {candidate}")
+        stages.add(stage)
+        validated.append(
+            {
+                "results": str(path),
+                "candidate": candidate,
+                "stage": stage,
+                "seeds": [row["seed"] for row in rows],
+            }
+        )
+    if not {"v3a", "v3b"} <= stages:
+        raise ValueError("V3C prerequisites must include one passing V3A and one passing V3B")
+    return validated
+
+
+def _load_staged_source(
+    repo: Path,
+    specification: dict[str, Any],
+    target_seed: int,
+) -> tuple[torch.nn.Module, dict[str, Any]]:
+    result_path, result = _read_pilot_result(repo, specification["results"])
+    seed_map = specification.get("source_seed_map", {})
+    source_seed = int(seed_map.get(str(target_seed), target_seed))
+    candidate = specification["candidate"]
+    rows = [
+        row for row in _rows_for_candidate(result, candidate) if int(row["seed"]) == source_seed
+    ]
+    if len(rows) != 1:
+        raise ValueError(
+            f"expected one staged source row for {candidate} seed {source_seed}, found {len(rows)}"
+        )
+    row = rows[0]
+    if row.get("passes_stage_gates") is not True:
+        raise ValueError(
+            f"staged source did not pass its stage gates: {candidate} seed {source_seed}"
+        )
+    checkpoint_path = _resolve_repo_path(repo, row["checkpoint"]["path"])
+    model, config, metadata = load_v3_checkpoint(checkpoint_path)
+    expected_family = specification.get("expected_family")
+    if expected_family is not None and metadata["family"] != expected_family:
+        raise ValueError(
+            f"staged source family mismatch: expected {expected_family}, got {metadata['family']}"
+        )
+    return model, {
+        "results": str(result_path),
+        "candidate": candidate,
+        "source_seed": source_seed,
+        "checkpoint": str(checkpoint_path),
+        "family": metadata["family"],
+        "stage": config.stage,
+        "model_digest": metadata["model_digest"],
+    }
+
+
+def _prepare_v3c_staged_initialization(
+    repo: Path,
+    candidate: dict[str, Any],
+    config: V3TrainConfig,
+) -> tuple[dict[str, torch.Tensor], dict[str, Any]]:
+    sources = candidate.get("staged_sources")
+    if not isinstance(sources, dict):
+        raise ValueError("staged V3C candidate must declare staged_sources")
+    raw_model, raw_metadata = _load_staged_source(repo, sources["raw_relation"], config.seed)
+    preservation_model, preservation_metadata = _load_staged_source(
+        repo, sources["preservation"], config.seed
+    )
+    target = build_v3_model(config.model_config())
+    state_dict, composition = compose_v3c_staged_state_dict(target, raw_model, preservation_model)
+    return state_dict, {
+        "raw_relation_source": raw_metadata,
+        "preservation_source": preservation_metadata,
+        "composition": composition,
+    }
+
+
 def _train_config(
     document: dict[str, Any],
     candidate: dict[str, Any],
@@ -283,7 +391,14 @@ def _passes_stage(row: dict[str, Any]) -> bool:
                 preservation["state_size_constant"],
             )
         )
-    return common and _metric(row, "long_100000") >= 0.90
+    return common and all(
+        (
+            delay - _metric(row, "relation_zero") >= 0.20,
+            _metric(row, "long_100000") >= 0.90,
+            _metric(row, "long_recovery") >= 0.90,
+            _metric(row, "long_retention") >= 0.90,
+        )
+    )
 
 
 def _summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
@@ -319,6 +434,7 @@ def _summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
             "family": selected[0]["family"],
             "parameter_count": selected[0]["training"]["parameter_count"],
             "persistent_state_bytes": selected[0]["training"]["persistent_state_bytes"],
+            "initialization": selected[0]["training"]["initialization"],
             "all_seeds_pass": all(row["passes_stage_gates"] for row in selected),
             "metrics": {
                 name: {
@@ -348,6 +464,7 @@ def run_v3_pilot(
     if stage not in {"v3a", "v3b", "v3c"}:
         raise ValueError("pilot stage must be v3a, v3b, or v3c")
     document = json.loads(config_path.read_text(encoding="utf-8"))
+    validated_prerequisites = _validate_v3c_prerequisites(repo, document) if stage == "v3c" else []
     candidates = {
         name: value for name, value in document["candidates"].items() if value["stage"] == stage
     }
@@ -361,7 +478,19 @@ def run_v3_pilot(
     for candidate_name, candidate in candidates.items():
         for seed in document["seeds"]:
             config = _train_config(document, candidate, seed)
-            run = train_v3_candidate(config)
+            initial_state_dict: dict[str, torch.Tensor] | None = None
+            initialization_metadata: dict[str, Any] | None = None
+            if config.initialization == "staged":
+                if stage != "v3c":
+                    raise ValueError("staged initialization is reserved for V3C")
+                initial_state_dict, initialization_metadata = _prepare_v3c_staged_initialization(
+                    repo, candidate, config
+                )
+            run = train_v3_candidate(
+                config,
+                initial_state_dict=initial_state_dict,
+                initialization_metadata=initialization_metadata,
+            )
             diagnostics = diagnose_v3_candidate(
                 run.model,
                 seed=seed,
@@ -407,6 +536,7 @@ def run_v3_pilot(
         "config": str(config_path),
         "seeds": document["seeds"],
         "candidate_selection_rule": document["candidate_selection_rule"],
+        "validated_prerequisites": validated_prerequisites,
         "rows": rows,
         "summary": _summary(rows),
         "wall_seconds": time.perf_counter() - started,

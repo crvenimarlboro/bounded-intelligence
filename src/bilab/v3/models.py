@@ -60,6 +60,8 @@ class V3ModelConfig:
             "relation_attractor",
             "relation_attractor_softtrain",
             "raw_hard_router",
+            "raw_soft_router_hard_skip_softtrain",
+            "raw_hard_router_softtrain",
             "raw_discrete_router",
         }
         if self.family not in valid:
@@ -505,6 +507,41 @@ class RelationAttractorSoftTrainCore(RelationAttractorCore):
         return projected, selection.argmax(dim=-1)
 
 
+class RawSoftRouterHardSkipSoftTrainCore(_LearnedRouterCore):
+    """V3C candidate combining raw evidence, learned soft routing, and exact evaluation skip.
+
+    Training keeps both routing and write strength differentiable. Evaluation preserves the
+    successful V3B runtime semantics: the learned write decision is thresholded to an exact
+    binary skip/write, while addressing remains learned and soft as in the supported V2B router.
+    """
+
+    family = "raw_soft_router_hard_skip_softtrain"
+    stage = "v3c"
+    hard_preservation = True
+
+    def __init__(self, config: V3ModelConfig) -> None:
+        super().__init__(config, relation_scaffold=False)
+        nn.init.constant_(self.write_controller[-1].bias, 0.5)
+
+    def _strength(self, controller_input: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
+        probability = torch.sigmoid(self.write_controller(controller_input))
+        if self.training:
+            return probability, probability
+        return probability, _hard_binary(probability, training=False)
+
+
+class RawHardRouterSoftTrainCore(RawSoftRouterHardSkipSoftTrainCore):
+    """V3C alternative with soft training and deterministic hard routing at evaluation."""
+
+    family = "raw_hard_router_softtrain"
+
+    def _route(self, controller_input: torch.Tensor) -> torch.Tensor:
+        probability = torch.softmax(self.router(controller_input), dim=-1)
+        if self.training:
+            return probability
+        return _hard_categorical(probability, training=False)
+
+
 class RawHardRouterCore(_LearnedRouterCore):
     """V3C candidate: raw relation, learned hard address, and exact learned skip."""
 
@@ -554,6 +591,8 @@ def build_v3_model(config: V3ModelConfig) -> BaseV3Core:
         "relation_attractor": RelationAttractorCore,
         "relation_attractor_softtrain": RelationAttractorSoftTrainCore,
         "raw_hard_router": RawHardRouterCore,
+        "raw_soft_router_hard_skip_softtrain": RawSoftRouterHardSkipSoftTrainCore,
+        "raw_hard_router_softtrain": RawHardRouterSoftTrainCore,
         "raw_discrete_router": RawDiscreteRouterCore,
     }
     return families[config.family](config)

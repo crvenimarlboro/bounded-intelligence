@@ -119,6 +119,74 @@ class V3TrainRun:
     metrics: dict[str, Any]
 
 
+def compose_v3c_staged_state_dict(
+    target_model: BaseV3Core,
+    raw_relation_model: BaseV3Core,
+    preservation_model: BaseV3Core,
+) -> tuple[dict[str, torch.Tensor], dict[str, Any]]:
+    """Compose a V3C initialization without silently mixing incompatible subsystem meanings.
+
+    The raw V3A source contributes only the learned raw relation encoder. The V3B source
+    contributes every target-compatible parameter except its scaffolded relation encoder, including
+    the learned router, write controller, value writer, reader, thought block, and output pathway.
+    The target architecture remains authoritative: only exact name-and-shape matches are
+    transferred.
+    """
+
+    if target_model.stage != "v3c" or target_model.relation_scaffold:
+        raise ValueError("staged composition target must be a raw V3C model")
+    if raw_relation_model.stage != "v3a" or raw_relation_model.relation_scaffold:
+        raise ValueError("raw staged source must be a non-scaffolded V3A model")
+    if preservation_model.stage != "v3b" or not preservation_model.relation_scaffold:
+        raise ValueError("preservation staged source must be a relation-scaffolded V3B model")
+    if not preservation_model.hard_preservation:
+        raise ValueError("preservation staged source must implement hard preservation")
+
+    target = target_model.state_dict()
+    raw = raw_relation_model.state_dict()
+    preservation = preservation_model.state_dict()
+    composed: dict[str, torch.Tensor] = {}
+    provenance: dict[str, str] = {}
+
+    for name, tensor in preservation.items():
+        if name.startswith("writer_encoder."):
+            continue
+        if name in target and target[name].shape == tensor.shape:
+            composed[name] = tensor.detach().clone()
+            provenance[name] = "v3b_preservation"
+
+    for name, tensor in raw.items():
+        if not name.startswith("writer_encoder."):
+            continue
+        if name in target and target[name].shape == tensor.shape:
+            composed[name] = tensor.detach().clone()
+            provenance[name] = "v3a_raw_relation"
+
+    required_prefixes = (
+        "writer_encoder.",
+        "value_candidate.",
+        "router.",
+        "write_controller.",
+    )
+    missing = [
+        prefix
+        for prefix in required_prefixes
+        if not any(name.startswith(prefix) for name in composed)
+    ]
+    if missing:
+        raise ValueError(f"staged V3C initialization lacks required subsystems: {missing}")
+
+    return composed, {
+        "policy": "v3a-writer-encoder-plus-v3b-compatible-non-writer",
+        "raw_relation_family": raw_relation_model.family,
+        "preservation_family": preservation_model.family,
+        "raw_relation_digest": state_dict_digest(raw_relation_model),
+        "preservation_digest": state_dict_digest(preservation_model),
+        "transferred_parameter_names": sorted(composed),
+        "parameter_source": provenance,
+    }
+
+
 def seed_v3(seed: int, threads: int = 6) -> None:
     random.seed(seed)
     torch.manual_seed(seed)
@@ -247,6 +315,7 @@ def train_v3_candidate(
     config: V3TrainConfig,
     *,
     initial_state_dict: dict[str, torch.Tensor] | None = None,
+    initialization_metadata: dict[str, Any] | None = None,
 ) -> V3TrainRun:
     """Train one V3 candidate on fresh mixed worlds under the equal V2 budget."""
 
@@ -339,6 +408,7 @@ def train_v3_candidate(
             "training_wall_seconds": elapsed,
             "peak_ram_bytes": _peak_ram_bytes(),
             "initialization": config.initialization,
+            "initialization_metadata": initialization_metadata or {},
             "transferred_parameter_names": transferred_parameters,
             "bptt": {
                 "detach_inside_episode": False,
