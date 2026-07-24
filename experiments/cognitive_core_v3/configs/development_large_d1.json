@@ -1,0 +1,121 @@
+{
+  "schema_version": "1.0",
+  "experiment_id": "cognitive-core-v3-large-development-d1",
+  "seeds": [3501, 3502, 3503, 3504, 3505, 3506],
+  "training": {
+    "world_seed_start": 610000,
+    "validation_seed_start": 640000,
+    "optimizer_steps": 1600,
+    "batch_groups": 12,
+    "episode_steps": 16,
+    "validation_groups": 128,
+    "validation_interval": 100,
+    "learning_rate": 0.003,
+    "gradient_clip": 1.0,
+    "torch_threads": 6,
+    "observations_per_candidate_seed": 1228800
+  },
+  "evaluation_seed_start": 650000,
+  "evaluation_groups": 256,
+  "long_sequence_lengths": [10, 100, 1000, 10000, 100000, 1000000],
+  "prerequisites": [
+    {
+      "results": "results/cognitive_core_v3/pilot-isolated-v1.0/pilot_results.json",
+      "candidate": "v3a_raw_bilinear_overwrite"
+    },
+    {
+      "results": "results/cognitive_core_v3/pilot-preservation-revision-v1.0/pilot_results.json",
+      "candidate": "v3b_hard_skip_softtrain"
+    }
+  ],
+  "candidates": {
+    "v3c_large_robust_b3201": {
+      "stage": "v3c",
+      "family": "raw_soft_router_hard_skip_softtrain",
+      "hidden_dim": 64,
+      "write_cost": 0.0,
+      "initialization": "staged",
+      "diagnose_initialization": true,
+      "staged_sources": {
+        "raw_relation": {
+          "results": "results/cognitive_core_v3/pilot-isolated-v1.0/pilot_results.json",
+          "candidate": "v3a_raw_bilinear_overwrite",
+          "expected_family": "raw_bilinear_overwrite",
+          "source_seed_map": {
+            "3501": 3202,
+            "3502": 3202,
+            "3503": 3202,
+            "3504": 3202,
+            "3505": 3202,
+            "3506": 3202
+          }
+        },
+        "preservation": {
+          "results": "results/cognitive_core_v3/pilot-preservation-revision-v1.0/pilot_results.json",
+          "candidate": "v3b_hard_skip_softtrain",
+          "expected_family": "relation_hard_skip_softtrain",
+          "source_seed_map": {
+            "3501": 3201,
+            "3502": 3201,
+            "3503": 3201,
+            "3504": 3201,
+            "3505": 3201,
+            "3506": 3201
+          }
+        }
+      }
+    },
+    "v3c_large_fragile_b3202": {
+      "stage": "v3c",
+      "family": "raw_soft_router_hard_skip_softtrain",
+      "hidden_dim": 64,
+      "write_cost": 0.0,
+      "initialization": "staged",
+      "diagnose_initialization": true,
+      "staged_sources": {
+        "raw_relation": {
+          "results": "results/cognitive_core_v3/pilot-isolated-v1.0/pilot_results.json",
+          "candidate": "v3a_raw_bilinear_overwrite",
+          "expected_family": "raw_bilinear_overwrite",
+          "source_seed_map": {
+            "3501": 3201,
+            "3502": 3201,
+            "3503": 3201,
+            "3504": 3201,
+            "3505": 3201,
+            "3506": 3201
+          }
+        },
+        "preservation": {
+          "results": "results/cognitive_core_v3/pilot-preservation-revision-v1.0/pilot_results.json",
+          "candidate": "v3b_hard_skip_softtrain",
+          "expected_family": "relation_hard_skip_softtrain",
+          "source_seed_map": {
+            "3501": 3202,
+            "3502": 3202,
+            "3503": 3202,
+            "3504": 3202,
+            "3505": 3202,
+            "3506": 3202
+          }
+        }
+      }
+    },
+    "v3c_large_random": {
+      "stage": "v3c",
+      "family": "raw_soft_router_hard_skip_softtrain",
+      "hidden_dim": 64,
+      "write_cost": 0.0,
+      "initialization": "random"
+    }
+  },
+  "candidate_selection_rule": [
+    "run all three conditions on all six target seeds",
+    "train each model for 1600 updates and 1228800 observations",
+    "evaluate on 256 groups and stress through 1000000 distractors",
+    "require every behavioral V3C gate and the strengthened exact-preservation gate",
+    "primary support requires six of six seeds to pass",
+    "five of six is near-replication only and does not satisfy the primary claim",
+    "do not open confirmatory seeds 3701--3705 or worlds beginning at 700000"
+  ]
+}
